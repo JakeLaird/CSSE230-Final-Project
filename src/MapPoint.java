@@ -10,10 +10,25 @@ import java.util.PriorityQueue;
  */
 public class MapPoint {
 	double latitude,longitude,cost;
-	PriorityQueue<MapPoint> neighboringPoints;
-	MapPoint(double latitude, double longitude){
-		this.latitude = latitude;
-		this.longitude = longitude;	
+	PriorityQueue<NeighboringPoint> neighbors;
+	
+		MapPoint(double latitude, double longitude){
+			this.latitude = latitude;
+			this.longitude = longitude;	
+			
+		}
+		
+		public void addNeighbor(MapPoint point){
+			neighbors.add(new NeighboringPoint(point));
+		}
+	
+	private class NeighboringPoint{ // AKA roads
+		MapPoint point;
+		double cost;
+		NeighboringPoint(MapPoint point){
+			this.point = point;
+			cost = Math.sqrt(Math.pow(MapPoint.this.latitude- point.latitude,2) + Math.pow(MapPoint.this.longitude- point.longitude, 2));
+		}
 		
 	}
 	
