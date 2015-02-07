@@ -19,7 +19,8 @@ public class MapPoint {
 		}
 		
 		public void addNeighbor(MapPoint point){
-			neighbors.add(new NeighboringPoint(point));
+			NeighboringPoint neighboringPoint = new NeighboringPoint(point);
+//			neighbors.add(point.cost);
 		}
 	
 	private class NeighboringPoint{ // AKA roads
@@ -30,6 +31,9 @@ public class MapPoint {
 			cost = Math.sqrt(Math.pow(MapPoint.this.latitude- point.latitude,2) + Math.pow(MapPoint.this.longitude- point.longitude, 2));
 		}
 		
+		
+		
 	}
+
 	
 }
