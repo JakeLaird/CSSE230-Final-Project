@@ -1,14 +1,13 @@
 package rhnavigator;
 
 import java.util.PriorityQueue;
-import costfunctions;
 
 /**
  * 
  */
 
 /**
- * @author Jake
+ * @author Jake Taylor David Runzhi
  *
  */
 
