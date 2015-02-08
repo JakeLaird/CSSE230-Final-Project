@@ -1,2 +1,2 @@
 # csse230-final-project
-Csse 230 Final Project
+RHNavigator - A tool to navigate to and from points of interest
