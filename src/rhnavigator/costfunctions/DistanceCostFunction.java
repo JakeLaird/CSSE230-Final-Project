@@ -1,3 +1,5 @@
+package rhnavigator.costfunctions;
+import rhnavigator.MapPoint;
 /**
  * Function Object for finding the distance between 2 MapPoints.
  */

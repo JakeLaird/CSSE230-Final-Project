@@ -1,3 +1,6 @@
+package rhnavigator.costfunctions;
+
+import rhnavigator.MapPoint;
 /**
  * Function Object for finding the cost between 2 MapPoints.
  */

@@ -1,6 +1,7 @@
 package rhnavigator;
 
 import java.util.PriorityQueue;
+import rhnavigator.costfunctions.*;
 
 /**
  * 
@@ -12,7 +13,7 @@ import java.util.PriorityQueue;
  */
 
 public class MapPoint {
-	double latitude,longitude,cost;
+	public double latitude,longitude,cost;
 	PriorityQueue<NeighboringPoint> neighbors;
 	
 		MapPoint(double latitude, double longitude) {
