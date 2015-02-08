@@ -16,7 +16,7 @@ public class MapPoint {
 	public double latitude,longitude,cost;
 	PriorityQueue<NeighboringPoint> neighbors;
 	
-		MapPoint(double latitude, double longitude) {
+		public MapPoint(double latitude, double longitude) {
 			this.latitude = latitude;
 			this.longitude = longitude;
 		}
@@ -30,13 +30,13 @@ public class MapPoint {
 		MapPoint point;
 		int cost;
 
-		NeighboringPoint(MapPoint point) {
+		public NeighboringPoint(MapPoint point) {
 			this.point = point;
 			CostFunction func = new DistanceCostFunction();
 			UpdateCost(func);
 		}
 
-		NeighboringPoint(MapPoint point, CostFunction func) {
+		public NeighboringPoint(MapPoint point, CostFunction func) {
 			this.point = point;
 			UpdateCost(func);
 		}
