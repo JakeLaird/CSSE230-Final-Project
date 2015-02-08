@@ -1,4 +1,7 @@
+package rhnavigator;
+
 import java.util.PriorityQueue;
+import costfunctions;
 
 /**
  * 
