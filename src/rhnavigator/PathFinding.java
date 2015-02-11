@@ -24,7 +24,7 @@ public class PathFinding {
 	}
 	
 	public ArrayList<MapPoint> findShortestPath(MapPoint temp){
-		 
+		 //while(preferences.calculate(temp.getNeighbors().peek().point, destination)
 		return null;
 	}
 }

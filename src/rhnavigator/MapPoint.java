@@ -25,6 +25,9 @@ public class MapPoint {
 			NeighboringPoint neighboringPoint = new NeighboringPoint(point);
 //			neighbors.add(point.cost);
 		}
+		public PriorityQueue<NeighboringPoint> getNeighbors(){
+			return neighbors;
+		}
 	
 	private class NeighboringPoint { // AKA roads
 		MapPoint point;
