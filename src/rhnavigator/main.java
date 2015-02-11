@@ -1,5 +1,7 @@
 package rhnavigator;
 
+import rhnavigator.map.Map;
+
 /**
  * 
  */
@@ -14,8 +16,8 @@ public class main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		System.out.println("Running");
-
+		
+    System.out.println(Map.getSample());
 	}
 
 }
