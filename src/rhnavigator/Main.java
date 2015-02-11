@@ -12,7 +12,7 @@ import rhnavigator.map.Map;
  * @author tayler
  *
  */
-public class main {
+public class Main {
 
 	/**
 	 * @param args
