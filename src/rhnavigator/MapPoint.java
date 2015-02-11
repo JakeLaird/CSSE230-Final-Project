@@ -1,6 +1,8 @@
 package rhnavigator;
 
+import java.util.ArrayList;
 import java.util.PriorityQueue;
+
 import rhnavigator.costfunctions.*;
 
 /**
@@ -14,9 +16,8 @@ import rhnavigator.costfunctions.*;
 
 public class MapPoint {
 	public double latitude,longitude,cost;
-	private String name;
-	
-	public PriorityQueue<NeighboringPoint> neighbors;
+	private String name;	
+	private PriorityQueue<NeighboringPoint> neighbors;
 	
 		public MapPoint(double latitude, double longitude, String name) {
 			neighbors = new PriorityQueue<NeighboringPoint>();
@@ -28,6 +29,9 @@ public class MapPoint {
 		public void addNeighbor(MapPoint point) {
 			NeighboringPoint neighboringPoint = new NeighboringPoint(point);
 			neighbors.add(neighboringPoint);
+		}
+		public PriorityQueue<NeighboringPoint> getNeighbors(){
+			return neighbors;
 		}
 		
 		public String getName() {

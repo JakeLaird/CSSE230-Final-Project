@@ -3,6 +3,7 @@ package rhnavigator;
 import java.util.ArrayList;
 
 import rhnavigator.costfunctions.CostFunction;
+import rhnavigator.map.Map;
 
 
 public class PathFinding {
@@ -14,7 +15,8 @@ public class PathFinding {
 	private int expectedCost;
 	
 	
-	public PathFinding(MapPoint current, MapPoint destination, CostFunction preferences){
+	
+	public PathFinding(MapPoint current, MapPoint destination, CostFunction preferences, Map map){
 		this.current=current;
 		this.destination=destination;
 		this.preferences=preferences;
