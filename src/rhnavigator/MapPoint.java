@@ -63,11 +63,11 @@ public class MapPoint {
 		}
 		
 		public String toString() {
-			return point.getName();
+			return "<" + point.getName() + ", " + cost + ">";
 		}
 	}
 
 	public String toString() {
-		return "\nMapPoint: " + name + ", Neighbors: " + neighbors.toString() + "\n";
+		return "\n(" + name + ", " + neighbors.toString() + ")\n";
 	}
 }
