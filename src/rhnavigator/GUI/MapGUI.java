@@ -1,20 +1,29 @@
 package rhnavigator.GUI;
 
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
+
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactoryInfo;
+
+import rhnavigator.map.Map;
+import rhnavigator.map.MapView;
+
 public class MapGUI {
 	JFrame frame;
 	JSplitPane splitPane;
-	JPanel buttonPanel,mapPanel,homeScreen;
+	JPanel buttonPanel,mapPanel,homeScreen, settingsPanel;
 	JButton search,attractions, goHome, settings,homeButton;
 	
 	
@@ -46,7 +55,8 @@ public class MapGUI {
 		attractions = new JButton("Attractions");
 		ActionListener attractionListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
-				mapPanel();
+//				mapPanel();
+				attractionsPanel();
 				// Do stuff for finding attractions function
 			}
 		};
@@ -64,11 +74,22 @@ public class MapGUI {
 		settings = new JButton("Settings");
 		ActionListener settingsListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
-				mapPanel();
-				// Do stuff for search function
+				settingsPanel();
+				// Do stuff for settings 
 			}
 		};
+		
 		settings.addActionListener(settingsListener);
+		
+		homeButton = new JButton("Home");
+		ActionListener mainMenuListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				splitPane.setVisible(false);
+				mainMenu();
+				// Back to main
+			}
+		};
+		homeButton.addActionListener(mainMenuListener);
 		
 		
 		homeScreen.add(search);
@@ -82,50 +103,89 @@ public class MapGUI {
 	}
 	
 	private void mainMenu(){
-		splitPane.setVisible(false);
+//		splitPane.setVisible(false);
 		homeScreen.setVisible(true);
 		frame.setSize(HOME_WIDTH,HOME_HEIGHT);
+		GridLayout buttonLayout = new GridLayout(8,1);
+		
+		
 	}
-	
-	private void mapPanel(){
+	private void settingsPanel(){
 		homeScreen.setVisible(false);
 		buttonPanel = new JPanel();
-		GridLayout buttonLayout = new GridLayout(8,1); // Grid Layout for buttons
-		buttonPanel.setLayout(buttonLayout);
+		buttonPanel.setLayout(new GridLayout(8,1));
 		
-		mapPanel = new JPanel();
-		mapPanel.setBackground(Color.black);
-
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,buttonPanel,mapPanel);
-		frame.add(splitPane);
+		settingsPanel = new JPanel();
+		settingsPanel.setLayout(new GridLayout(2,1));
 		
-		homeButton = new JButton("Home");
-		ActionListener homeListener = new ActionListener() {
-			public void actionPerformed(ActionEvent e){
-//				splitPane.setVisible(false);
-				mainMenu();
-				// Back to main
-			}
-		};
-		homeButton.addActionListener(homeListener);
 		buttonPanel.add(homeButton);
 		
-		frame.setSize(FRAME_WIDTH,FRAME_HEIGHT);
-		splitPane.setSize(FRAME_WIDTH,FRAME_HEIGHT);
+		settingsPanel.add(buttonPanel);	
+		
+		frame.add(settingsPanel);
 		frame.repaint();
 		
 	}
-	private void searchPanel(){
+	private void mapPanel(){
 		
-		JLabel label1 = new JLabel("Enter Current Location");
-		JTextField currentLocation = new JTextField("");
-		JLabel label2 = new JLabel("Enter destination");
-		JTextField endLocation = new JTextField("");
-		splitPane.setDividerLocation((homeButton.WIDTH));
+		homeScreen.setVisible(false);
+		buttonPanel = new JPanel();
+		// Grid Layout for buttons
+		buttonPanel.setLayout(new GridLayout(8,1));
+		
+		mapPanel = new JPanel();
+		
+		
+		mapPanel.setLayout(new GridLayout(1,1));
+//		mapPanel.add(new MapView(Map.getSample()));
+		
+		JXMapViewer mapViewer = new JXMapViewer();
+		// Create a TileFactoryInfo for OpenStreetMap
+		TileFactoryInfo info = new OSMTileFactoryInfo();
+		DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+		mapViewer.setTileFactory(tileFactory);
+		// Use 8 threads in parallel to load the tiles
+		tileFactory.setThreadPoolSize(8);
+		// Set the focus
+		GeoPosition frankfurt = new GeoPosition(50.11, 8.68);
+		mapViewer.setZoom(7);
+		mapViewer.setAddressLocation(frankfurt);
+
+	
+		mapPanel.add(mapViewer);
+		
+		mapPanel.repaint();
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,buttonPanel,mapPanel);
+		frame.add(splitPane);
+		buttonPanel.add(homeButton);
+		
+		frame.setSize(FRAME_WIDTH,FRAME_HEIGHT);
+		
+	}
+	private void searchPanel(){
+		JLabel label1 = new JLabel("Enter Location");
+		JComboBox currentLocation = new JComboBox();
+		currentLocation.setEditable(true);
+		splitPane.setDividerLocation((FRAME_WIDTH/4));
+		
+		JButton inputButton = new JButton("Search!");
+		ActionListener inputListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				findOnMap();
+			}
+		};
+		inputButton.addActionListener(inputListener);
+		
 		buttonPanel.add(label1);
 		buttonPanel.add(currentLocation);
-		buttonPanel.add(label2);
-		buttonPanel.add(endLocation);
+		buttonPanel.add(inputButton);
+	}
+	
+	private void attractionsPanel(){
+		
+	}
+	private void findOnMap(){
+		//Find a location on the map here
 	}
 	
 public static void main(String[] args) {

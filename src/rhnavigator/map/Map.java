@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeMap;
 
-import rhnavigator.MapPoint;
 import net.sf.javaml.core.kdtree.KDTree;
+import rhnavigator.MapPoint;
+
 
 /**
  * Stores the all of the MapPoints in the currently loaded map
@@ -66,6 +67,19 @@ public class Map {
 		return true;
 	}
 
+	public String getstring(){
+		String result="";
+		for(String key:mapPoints.keySet()){
+			double la=mapPoints.get(key).latitude;
+			double lo=mapPoints.get(key).longitude;
+			String name=mapPoints.get(key).getName();
+			String nei=mapPoints.get(key).neighbors.toString();
+			int in=0;
+			String temp="["+la+","+lo+","+name+","+nei+","+in+"]\n";
+			result+=temp;
+		}
+		return result;
+	}
 	/**
 	 * Returns the number of MapPoints stored in this Map
 	 * 
