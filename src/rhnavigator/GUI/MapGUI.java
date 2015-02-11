@@ -4,6 +4,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -15,16 +16,18 @@ import rhnavigator.map.Map;
 import rhnavigator.map.MapView;
 
 public class MapGUI {
-	JFrame frame;
-	JSplitPane splitPane;
-	JPanel buttonPanel,mapPanel,homeScreen, settingsPanel;
-	JButton search,attractions, goHome, settings,homeButton;
+	//Static because only one instance of each.
+	static JFrame frame;
+	static JSplitPane splitPane;
+	static JPanel buttonPanel,mapPanel,homeScreen, settingsPanel;
+	static JButton search,attractions, goHome, settings,homeButton;
 	
+	static String homeLocation;
 	
-	final int MAP_WIDTH = 700;
-	final int MAP_HEIGHT = 500;
-	final int FRAME_WIDTH = 1000;
-	final int FRAME_HEIGHT = 500;
+	final static int MAP_WIDTH = 700;
+	final static int MAP_HEIGHT = 500;
+	final static int FRAME_WIDTH = 1000;
+	final static int FRAME_HEIGHT = 500;
 	
 	final int HOME_WIDTH = 500;
 	final int HOME_HEIGHT = HOME_WIDTH;
@@ -36,61 +39,15 @@ public class MapGUI {
 		homeScreen.setLayout(homeLayout);
 		frame.add(homeScreen);
 		
-		search = new JButton("Search");
-		ActionListener searchListener = new ActionListener() {
-			public void actionPerformed(ActionEvent e){
-				mapPanel();
-				searchPanel();
-				// Do stuff for search function
-			}
-		};
-		search.addActionListener(searchListener);
-		
-		attractions = new JButton("Attractions");
-		ActionListener attractionListener = new ActionListener() {
-			public void actionPerformed(ActionEvent e){
-//				mapPanel();
-				attractionsPanel();
-				// Do stuff for finding attractions function
-			}
-		};
-		attractions.addActionListener(attractionListener);
-		
-		goHome = new JButton("Go Home");
-		ActionListener homeListener = new ActionListener() {
-			public void actionPerformed(ActionEvent e){
-				mapPanel();
-				// Do stuff for finding route home function
-			}
-		};
-		goHome.addActionListener(homeListener);
-		
-		settings = new JButton("Settings");
-		ActionListener settingsListener = new ActionListener() {
-			public void actionPerformed(ActionEvent e){
-				settingsPanel();
-				// Do stuff for settings 
-			}
-		};
-		
-		settings.addActionListener(settingsListener);
-		
-		homeButton = new JButton("Home");
-		ActionListener mainMenuListener = new ActionListener() {
-			public void actionPerformed(ActionEvent e){
-				splitPane.setVisible(false);
-				mainMenu();
-				// Back to main
-			}
-		};
-		homeButton.addActionListener(mainMenuListener);
-		
+		instantiateButtons(); // All the button instantiation code here lol		
 		
 		homeScreen.add(search);
 		homeScreen.add(attractions);
 		homeScreen.add(goHome);
 		homeScreen.add(settings);
+		
 		frame.setSize(HOME_WIDTH,HOME_HEIGHT);
+		frame.setTitle("RHNavigators!");
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -110,7 +67,9 @@ public class MapGUI {
 		buttonPanel.setLayout(new GridLayout(8,1));
 		
 		settingsPanel = new JPanel();
-		settingsPanel.setLayout(new GridLayout(2,1));
+		settingsPanel.setLayout(new GridLayout(1,2));
+		
+		JComboBox inputBox = new JComboBox();
 		
 		buttonPanel.add(homeButton);
 		
@@ -166,6 +125,64 @@ public class MapGUI {
 	}
 	private void findOnMap(){
 		//Find a location on the map here
+	}
+	
+	private void instantiateButtons(){
+
+		search = new JButton("Search");
+//		search.setIcon(new ImageIcon("searchIcon.png"));
+//		search.setBorderPainted(false);
+//		search.setFocusPainted(false);
+//		search.setContentAreaFilled(false);
+
+		ActionListener searchListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				mapPanel();
+				searchPanel();
+				// Do stuff for search function
+			}
+		};
+		search.addActionListener(searchListener);
+		
+		attractions = new JButton("Attractions");
+		ActionListener attractionListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+//				mapPanel();
+				attractionsPanel();
+				// Do stuff for finding attractions function
+			}
+		};
+		attractions.addActionListener(attractionListener);
+		
+		goHome = new JButton("Go Home");
+		ActionListener homeListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				mapPanel();
+				// Do stuff for finding route home function
+			}
+		};
+		goHome.addActionListener(homeListener);
+		
+		settings = new JButton("Settings");
+		ActionListener settingsListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				settingsPanel();
+				// Do stuff for settings 
+			}
+		};
+		
+		settings.addActionListener(settingsListener);
+		
+		homeButton = new JButton("Home");
+		ActionListener mainMenuListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				if(settingsPanel!=null)settingsPanel.setVisible(false);
+				if(splitPane!=null)splitPane.setVisible(false);
+				mainMenu();
+				// Back to main
+			}
+		};
+		homeButton.addActionListener(mainMenuListener);
 	}
 	
 public static void main(String[] args) {
