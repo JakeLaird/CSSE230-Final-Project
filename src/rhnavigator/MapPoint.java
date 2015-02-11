@@ -16,7 +16,7 @@ public class MapPoint {
 	public double latitude,longitude,cost;
 	private String name;
 	
-	PriorityQueue<NeighboringPoint> neighbors;
+	public PriorityQueue<NeighboringPoint> neighbors;
 	
 		public MapPoint(double latitude, double longitude, String name) {
 			neighbors = new PriorityQueue<NeighboringPoint>();
@@ -37,6 +37,7 @@ public class MapPoint {
 		public void setName(String name) {
 			this.name = name;
 		}
+		
 	
 	private class NeighboringPoint implements Comparable<NeighboringPoint> { // AKA roads
 		MapPoint point;

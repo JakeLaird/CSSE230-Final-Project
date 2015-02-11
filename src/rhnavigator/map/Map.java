@@ -87,11 +87,18 @@ public class Map {
     double[] lowerBounds = new double[] {bottomBound, leftBound};
     double[] upperBounds = new double[] {topBound, rightBound};
 
-    MapPoint[] results = (MapPoint[])kdMapPoints.range(lowerBounds, upperBounds);
+    Object[] results = kdMapPoints.range(lowerBounds, upperBounds);
 
-    return new ArrayList<MapPoint>(Arrays.asList(results));
+    MapPoint[] mapPointsResult = Arrays.copyOf(results, results.length, MapPoint[].class);
+
+    return new ArrayList<MapPoint>(Arrays.asList(mapPointsResult));
   }
 
+  public MapPoint getNearest(double latitude, double longitude) {
+    double[] key = new double[] {latitude, longitude};
+    return (MapPoint) kdMapPoints.nearest(key);
+  }
+ 
   public ArrayList<MapPoint> toArrayList() {
     return new ArrayList<MapPoint>(mapPoints.values());
   }
