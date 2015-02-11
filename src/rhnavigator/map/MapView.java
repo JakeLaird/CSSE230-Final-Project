@@ -24,7 +24,7 @@ public class MapView extends JComponent {
 		super.paintComponent(g);
 		g.setColor(Color.WHITE);
 		g.fillRect(0,0,getWidth(),getHeight());
-		System.out.println("W " + getWidth() + " H " + getHeight());
+//		System.out.println("W " + getWidth() + " H " + getHeight());
 		g.setColor(Color.BLACK);
 		g.drawOval(10, 10, 5, 8);
 	}
