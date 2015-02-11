@@ -14,22 +14,32 @@ import rhnavigator.costfunctions.*;
 
 public class MapPoint {
 	public double latitude,longitude,cost;
-	PriorityQueue<NeighboringPoint> neighbors;
+	private String name;
 	
-		public MapPoint(double latitude, double longitude) {
+	public PriorityQueue<NeighboringPoint> neighbors;
+	
+		public MapPoint(double latitude, double longitude, String name) {
+			neighbors = new PriorityQueue<NeighboringPoint>();
 			this.latitude = latitude;
 			this.longitude = longitude;
+			this.name = name;
 		}
 		
 		public void addNeighbor(MapPoint point) {
 			NeighboringPoint neighboringPoint = new NeighboringPoint(point);
-//			neighbors.add(point.cost);
+			neighbors.add(neighboringPoint);
 		}
-		public PriorityQueue<NeighboringPoint> getNeighbors(){
-			return neighbors;
+		
+		public String getName() {
+			return name;
 		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+		
 	
-	private class NeighboringPoint { // AKA roads
+	private class NeighboringPoint implements Comparable<NeighboringPoint> { // AKA roads
 		MapPoint point;
 		int cost;
 
@@ -47,5 +57,17 @@ public class MapPoint {
 		public void UpdateCost(CostFunction func) {
 			cost = func.calculate(MapPoint.this, point);
 		}
+		
+		public int compareTo(NeighboringPoint neighbor) {
+			return this.cost - neighbor.cost;
+		}
+		
+		public String toString() {
+			return "<" + point.getName() + ", " + cost + ">";
+		}
+	}
+
+	public String toString() {
+		return "\n(" + name + ", " + neighbors.toString() + ")\n";
 	}
 }
