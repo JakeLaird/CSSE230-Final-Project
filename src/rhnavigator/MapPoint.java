@@ -13,7 +13,7 @@ import rhnavigator.costfunctions.*;
 public class MapPoint {
 	public double latitude,longitude,cost;
 	private String name;	
-	private PriorityQueue<NeighboringPoint> neighbors;
+	public PriorityQueue<NeighboringPoint> neighbors;
 	private CostFunction costEstimate;
 	
 		public MapPoint(double latitude, double longitude, String name) {
@@ -59,22 +59,14 @@ public class MapPoint {
 		}
 		
 		private ArrayList<MapPoint> findShortestPath( MapPoint goal){
-//		function A*(start,goal)
-//	    closedset := the empty set    // The set of nodes already evaluated.
 			ArrayList<MapPoint> closedset=new ArrayList<MapPoint>();
-//	    openset := {start}    // The set of tentative nodes to be evaluated, initially containing the start node
 			PriorityQueue<MapPoint>openset=new PriorityQueue<MapPoint>();
 			openset.add(this);
-//	    came_from := the empty map    // The map of navigated nodes.
 			ArrayList<MapPoint> cameFrom=new ArrayList<MapPoint>();
-//	    g_score[start] := 0    // Cost from start along best known path.
 			int tripCost=0;
-//	    // Estimated total cost from start to goal through y.
 			int estimateCost=tripCost+costEstimate.calculate(this, goal);
-//	    f_score[start] := g_score[start] + heuristic_cost_estimate(start, goal)
 //	 
 			while(!openset.isEmpty()){
-//	    while openset is not empty
 				MapPoint current = openset.poll();
 //	        current := the node in openset having the lowest f_score[] value
 				if(current.equals(goal)){
@@ -82,36 +74,27 @@ public class MapPoint {
 					return reconstructPath(cameFrom, current);
 				}
 //	            return reconstruct_path(came_from, goal)
-//	 
 //	        remove current from openset
 				closedset.add(current);
+				cameFrom.add(current);
 //	        add current to closedset
-				java.util.Iterator<NeighboringPoint> t=neighbors.iterator();
+				java.util.Iterator<NeighboringPoint> t=current.neighbors.iterator();
 				while(t.hasNext()){
 //	        for each neighbor in neighbor_nodes(current)
 					MapPoint neighbor=t.next().point;
 				if(closedset.contains(neighbor)){
 					continue;
 				}
-//	            if neighbor in closedset
-//	                continue
-				int tempCost=tripCost+costEstimate.calculate(current,neighbor);
-//	            tentative_g_score := g_score[current] + dist_between(current,neighbor)
-//	 
-				if(!openset.contains(neighbor)||tempCost<costEstimate.calculate(neighbor, goal)){
-//	            if neighbor not in openset or tentative_g_score < g_score[neighbor] 
-					cameFrom.add(neighbor);
-//	                came_from[neighbor] := current
-					
-//	                g_score[neighbor] := tentative_g_score
-//	                f_score[neighbor] := g_score[neighbor] + heuristic_cost_estimate(neighbor, goal)
-//	                if neighbor not in openset
-//	                    add neighbor to openset
+//				int neighborCost=costEstimate.calculate(neighbor, goal);
+				
+				cameFrom.add(neighbor);
+				tripCost+=costEstimate.calculate(current, neighbor);
+				if(neighbor.equals(goal)){
+					break;
 				}
-//	 
 				}
 			}
-	    return null;
+	    return cameFrom;
 		}
 		
 		private ArrayList<MapPoint> reconstructPath(ArrayList<MapPoint> cameFrom, MapPoint current) {
