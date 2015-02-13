@@ -54,7 +54,7 @@ public class MapPoint {
 			return findShortestPath(goal);
 		}
 		public ArrayList<MapPoint> getShortestTimePath(MapPoint goal){
-			this.costEstimate=new TimeCostFunction();
+//			this.costEstimate=new TimeCostFunction();
 			return findShortestPath(goal);
 		}
 		
