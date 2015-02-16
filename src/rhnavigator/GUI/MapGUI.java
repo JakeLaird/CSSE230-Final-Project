@@ -187,7 +187,7 @@ public static void main(String[] args) {
 	// System.out.println(map.getstring());
 //	Input.buildtext(map, "first", true);
 	Map secondmap=Input.output("ipython/USCities.txt");
-//	System.out.println(secondmap.getstring());
+	
 	MapGUI map = new MapGUI(secondmap);
 	}
 }

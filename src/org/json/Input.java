@@ -95,7 +95,9 @@ public class Input {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		if (map.hasPendingConnections()) {
+			map.processPending();
+		}
 		return map;
-
 	}
 }

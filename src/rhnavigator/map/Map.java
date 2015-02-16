@@ -22,6 +22,7 @@ public class Map {
 	private TreeMap<String, MapPoint> mapPoints;
 	private KDTree kdMapPoints;
 	private List<List<MapPoint>> currentRoutes;
+	private List<PendingConnection> pendingConnections;
 
 	/**
 	 * Creates an empty Map.
@@ -30,6 +31,7 @@ public class Map {
 		mapPoints = new TreeMap<String, MapPoint>();
 		kdMapPoints = new KDTree(2); // 2 dimensions for our application
 		currentRoutes = new ArrayList<List<MapPoint>>();
+		pendingConnections = new ArrayList<PendingConnection>();
 	}
 
 	/**
@@ -49,13 +51,14 @@ public class Map {
 	 */
 	public MapPoint addPoint(double latitude, double longitude, String name,
 			ArrayList<String> neighbors, int interestLevel) {
+		MapPoint newPoint;
 		if (mapPoints.containsKey(name)) {
-			return null;
+			newPoint = mapPoints.get(name);
+		} else {
+			newPoint = new MapPoint(latitude, longitude, name);
+			kdMapPoints.insert(new double[] { latitude, longitude }, newPoint);
+			mapPoints.put(name, newPoint);
 		}
-
-		MapPoint newPoint = new MapPoint(latitude, longitude, name);
-		kdMapPoints.insert(new double[] { latitude, longitude }, newPoint);
-		mapPoints.put(name, newPoint);
 
 		if (neighbors != null) {
 			// Iterate over all the new neighbors to add
@@ -65,10 +68,35 @@ public class Map {
 					// Link them together
 					newPoint.addNeighbor(neighborMapPoint);
 					neighborMapPoint.addNeighbor(newPoint);
+				} else {
+					PendingConnection newPending = new PendingConnection(newPoint, neighbor);
+					pendingConnections.add(newPending);
 				}
 			}
 		}
 		return newPoint;
+	}
+	
+	public boolean processPending() {
+		if (pendingConnections.isEmpty()) {
+			return false;
+		}
+		
+		for (PendingConnection p : pendingConnections) {
+			MapPoint neighbor = mapPoints.get(p.getNeighbor());
+			if (neighbor != null) {
+				MapPoint point = p.getPoint();
+				point.addNeighbor(neighbor);
+				neighbor.addNeighbor(point);
+			}
+		}
+		pendingConnections.clear();
+		
+		return true;
+	}
+	
+	public boolean hasPendingConnections() {
+		return !pendingConnections.isEmpty();
 	}
 
 	public void addRoute(List<MapPoint> newRoute) {
@@ -139,6 +167,22 @@ public class Map {
 			result+=temp;
 		}
 		return result;
+	}
+	
+	private class PendingConnection {
+		private MapPoint point;
+		private String neighbor;
+		
+		public PendingConnection(MapPoint newPoint, String neighbor) {
+			this.point = newPoint;
+			this.neighbor = neighbor;
+		}
+		public MapPoint getPoint() {
+			return point;
+		}
+		public String getNeighbor() {
+			return neighbor;
+		}
 	}
 
 	public static Map getSample() {

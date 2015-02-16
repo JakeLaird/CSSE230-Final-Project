@@ -1,7 +1,9 @@
 package rhnavigator;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.PriorityQueue;
+
 import rhnavigator.costfunctions.*;
 
 
@@ -27,13 +29,14 @@ public class MapPoint{
 			NeighboringPoint neighboringPoint = new NeighboringPoint(point);
 			neighbors.add(neighboringPoint);
 		}
+
 		/**
 		 * This function returns a priority queue of closest neighbors to this mapPoint
 		 * @return PriorityQueue<MapPoint>
 		 */
-		public  PriorityQueue<MapPoint> getNeighbors(){
+		public List<MapPoint> getNeighbors(){
 			//This is a bandage way to use it, try to figure it out the best way to do it
-			PriorityQueue<MapPoint> temp=new PriorityQueue<MapPoint>();
+			List<MapPoint> temp=new ArrayList<MapPoint>();
 			java.util.Iterator<NeighboringPoint> i= neighbors.iterator();
 			while(i.hasNext()){
 				temp.add(i.next().point);
