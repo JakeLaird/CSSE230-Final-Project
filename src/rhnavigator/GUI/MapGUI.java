@@ -4,12 +4,13 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
 
 import org.jxmapviewer.JXMapViewer;
@@ -18,16 +19,13 @@ import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
 
-import rhnavigator.map.Map;
-import rhnavigator.map.MapView;
-
 public class MapGUI {
 	//Static because only one instance of each.
 	static JFrame frame;
 	static JSplitPane splitPane;
 	static JPanel buttonPanel,mapPanel,homeScreen, settingsPanel;
 	static JButton search,attractions, goHome, settings,homeButton;
-	
+	static JCheckBox checkBox;
 	static String homeLocation;
 	
 	final static int MAP_WIDTH = 700;
@@ -130,6 +128,7 @@ public class MapGUI {
 		JButton inputButton = new JButton("Search!");
 		ActionListener inputListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
+//				currentLocation
 				findOnMap();
 			}
 		};
@@ -141,7 +140,36 @@ public class MapGUI {
 	}
 	
 	private void attractionsPanel(){
+		mapPanel();
+		JLabel attractionsLabel = new JLabel("Nearby Attractions:");
+		JComboBox nearAttractions = new JComboBox();
 		
+		JButton inputButton = new JButton("Search!");
+		ActionListener inputListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				addRadioButtons(inputButton);
+			}
+		};
+		inputButton.addActionListener(inputListener);
+		
+		nearAttractions.addItem("Entertainment");
+		nearAttractions.addItem("Food");
+		nearAttractions.addItem("Historic");
+		nearAttractions.addItem("Nearby Cities");
+		
+		buttonPanel.add(attractionsLabel);
+		buttonPanel.add(nearAttractions);
+		buttonPanel.add(inputButton);
+		
+	}
+	private void addRadioButtons(JButton button){
+		buttonPanel = new JPanel();
+		buttonPanel.setLayout(new GridLayout(6,1));
+		JLabel panel = new JLabel("Attractions");
+		checkBox = new JCheckBox();
+		buttonPanel.add(panel);
+		buttonPanel.add(checkBox);
+		splitPane.setLeftComponent(buttonPanel);
 	}
 	private void findOnMap(){
 		//Find a location on the map here
@@ -154,7 +182,6 @@ public class MapGUI {
 //		search.setBorderPainted(false);
 //		search.setFocusPainted(false);
 //		search.setContentAreaFilled(false);
-
 		ActionListener searchListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
 				mapPanel();
@@ -203,6 +230,8 @@ public class MapGUI {
 			}
 		};
 		homeButton.addActionListener(mainMenuListener);
+		
+		
 	}
 	
 public static void main(String[] args) {
