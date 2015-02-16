@@ -94,24 +94,8 @@ public class MapGUI {
 		
 		
 		mapPanel.setLayout(new GridLayout(1,1));
-//		mapPanel.add(new MapView(Map.getSample()));
+		mapPanel.add(new MapView(Map.getSample()));
 		
-		JXMapViewer mapViewer = new JXMapViewer();
-		// Create a TileFactoryInfo for OpenStreetMap
-		TileFactoryInfo info = new OSMTileFactoryInfo();
-		DefaultTileFactory tileFactory = new DefaultTileFactory(info);
-		mapViewer.setTileFactory(tileFactory);
-		// Use 8 threads in parallel to load the tiles
-		tileFactory.setThreadPoolSize(8);
-		// Set the focus
-		GeoPosition frankfurt = new GeoPosition(50.11, 8.68);
-		mapViewer.setZoom(7);
-		mapViewer.setAddressLocation(frankfurt);
-
-	
-		mapPanel.add(mapViewer);
-		
-		mapPanel.repaint();
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,buttonPanel,mapPanel);
 		frame.add(splitPane);
 		buttonPanel.add(homeButton);
