@@ -24,13 +24,13 @@ public class MapTest {
 	public void testAddPoint() {
 		Map m = new Map();
 		// Simple case
-		assertTrue(m.addPoint(0.0, 0.0, "A", null, 0));
+		m.addPoint(0.0, 0.0, "A", null, 0);
 		assertTrue(m.size() == 1);
 		assertTrue(m.toArrayList().get(0).neighbors.size()==0);
 		
-		assertFalse(m.addPoint(0.0, 0.0, "A", null, 0));
+		m.addPoint(0.0, 0.0, "A", null, 0);
 
-		assertTrue(m.addPoint(1.0, 1.0, "B", new ArrayList<String>() {{ add("A"); }}, 0));
+		m.addPoint(1.0, 1.0, "B", new ArrayList<String>() {{ add("A"); }}, 0);
 		assertTrue(m.size() == 2);
 		assertTrue(m.toArrayList().get(0).neighbors.size()==1);
 		assertTrue(m.toArrayList().get(1).neighbors.size()==1);

@@ -19,6 +19,7 @@ import org.jxmapviewer.viewer.TileFactoryInfo;
 
 import rhnavigator.map.Map;
 import rhnavigator.map.MapView;
+import org.json.Input;
 
 public class MapGUI {
 	JFrame frame;
@@ -34,6 +35,7 @@ public class MapGUI {
 	
 	final int HOME_WIDTH = 500;
 	final int HOME_HEIGHT = HOME_WIDTH;
+	private Map map;
 	
 	public MapGUI(){
 		GridLayout homeLayout = new GridLayout(2,2);
@@ -100,8 +102,14 @@ public class MapGUI {
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		this.map = Map.getSample();
 	}
 	
+	public MapGUI(Map map) {
+		this();
+		this.map = map;
+	}
+
 	private void mainMenu(){
 //		splitPane.setVisible(false);
 		homeScreen.setVisible(true);
@@ -137,7 +145,7 @@ public class MapGUI {
 		
 		
 		mapPanel.setLayout(new GridLayout(1,1));
-		mapPanel.add(new MapView(Map.getSample()));
+		mapPanel.add(new MapView(this.map));
 		
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,buttonPanel,mapPanel);
 		frame.add(splitPane);
@@ -173,7 +181,13 @@ public class MapGUI {
 	}
 	
 public static void main(String[] args) {
-	MapGUI map = new MapGUI();	
+//	MapGUI map = new MapGUI();
 	
+//	Map map = Map.getSample();
+	// System.out.println(map.getstring());
+//	Input.buildtext(map, "first", true);
+	Map secondmap=Input.output("ipython/USCities.txt");
+//	System.out.println(secondmap.getstring());
+	MapGUI map = new MapGUI(secondmap);
 	}
 }

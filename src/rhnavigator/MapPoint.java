@@ -10,7 +10,7 @@ import rhnavigator.costfunctions.*;
  *
  */
 
-public class MapPoint {
+public class MapPoint{
 	public double latitude,longitude,cost;
 	private String name;	
 	public PriorityQueue<NeighboringPoint> neighbors;
