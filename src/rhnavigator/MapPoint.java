@@ -144,6 +144,7 @@ public class MapPoint{
 	}
 
 	public String toString() {
-		return "\n(" + name + ", " + neighbors.toString() + ")\n";
+		// return "\n(" + name + ", " + neighbors.toString() + ")\n";
+		return name;
 	}
 }

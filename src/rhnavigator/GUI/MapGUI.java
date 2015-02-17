@@ -19,6 +19,8 @@ import org.jxmapviewer.viewer.TileFactoryInfo;
 
 import rhnavigator.map.Map;
 import rhnavigator.map.MapView;
+
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.json.Input;
 
 public class MapGUI {
@@ -156,8 +158,9 @@ public class MapGUI {
 	}
 	private void searchPanel(){
 		JLabel label1 = new JLabel("Enter Location");
-		JComboBox currentLocation = new JComboBox();
+		JComboBox currentLocation = new JComboBox(map.toArrayList().toArray());
 		currentLocation.setEditable(true);
+		AutoCompleteDecorator.decorate(currentLocation);
 		splitPane.setDividerLocation((FRAME_WIDTH/4));
 		
 		JButton inputButton = new JButton("Search!");
