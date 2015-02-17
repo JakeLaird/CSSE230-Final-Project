@@ -19,6 +19,9 @@ import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
 
+import rhnavigator.map.Map;
+import rhnavigator.map.MapView;
+
 public class MapGUI {
 	//Static because only one instance of each.
 	static JFrame frame;
