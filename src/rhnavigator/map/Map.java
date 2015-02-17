@@ -55,7 +55,7 @@ public class Map {
 		if (mapPoints.containsKey(name)) {
 			newPoint = mapPoints.get(name);
 		} else {
-			newPoint = new MapPoint(latitude, longitude, name);
+			newPoint = new MapPoint(latitude, longitude, name, interestLevel);
 			kdMapPoints.insert(new double[] { latitude, longitude }, newPoint);
 			mapPoints.put(name, newPoint);
 		}

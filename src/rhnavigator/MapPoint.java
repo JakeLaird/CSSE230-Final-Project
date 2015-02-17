@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.Waypoint;
+
 import rhnavigator.costfunctions.*;
 
 
@@ -12,22 +15,28 @@ import rhnavigator.costfunctions.*;
  *
  */
 
-public class MapPoint{
+public class MapPoint implements Waypoint{
 	public double latitude,longitude,cost;
+	private int interestLevel;
 	private String name;	
 	public PriorityQueue<NeighboringPoint> neighbors;
 	private CostFunction costEstimate;
 	
-		public MapPoint(double latitude, double longitude, String name) {
+		public MapPoint(double latitude, double longitude, String name, int interestLevel) {
 			neighbors = new PriorityQueue<NeighboringPoint>();
 			this.latitude = latitude;
 			this.longitude = longitude;
 			this.name = name;
+			this.interestLevel = interestLevel;
 		}
 		
 		public void addNeighbor(MapPoint point) {
 			NeighboringPoint neighboringPoint = new NeighboringPoint(point);
 			neighbors.add(neighboringPoint);
+		}
+		
+		public int getInterestLevel() {
+			return interestLevel;
 		}
 
 		/**
@@ -59,6 +68,10 @@ public class MapPoint{
 		public ArrayList<MapPoint> getShortestTimePath(MapPoint goal){
 //			this.costEstimate=new TimeCostFunction();
 			return findShortestPath(goal);
+		}		
+
+		public GeoPosition getPosition() {
+			return new GeoPosition(latitude, longitude);
 		}
 		
 		private ArrayList<MapPoint> findShortestPath( MapPoint goal){
@@ -112,6 +125,7 @@ public class MapPoint{
 //	        current := came_from[current]
 //	        total_path.append(current)
 //	    return total_path
+		
 		
 		
 	

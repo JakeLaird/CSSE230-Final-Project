@@ -74,12 +74,9 @@ public class MapView extends JXMapViewer {
 
 		ArrayList<MapPoint> pointsArray = map.toArrayList();
 
-		ArrayList<GeoPosition> geolist = new ArrayList<GeoPosition>();
-
 		List<Painter<JXMapViewer>> painters = new ArrayList<Painter<JXMapViewer>>();
 
 		for (MapPoint p : pointsArray) {
-			geolist.add(new GeoPosition(p.latitude, p.longitude));
 			for (MapPoint n : p.getNeighbors()) {
 				List<MapPoint> temp = new ArrayList<MapPoint>();
 				temp.add(p);
@@ -87,18 +84,11 @@ public class MapView extends JXMapViewer {
 				painters.add(new RoutePainter(getGeoPosition(temp), Color.GREEN));
 			}
 		}
-
-		// Create waypoints from the geo-positions
-		HashSet<Waypoint> waypoints = new HashSet<Waypoint>();
-
-		for (GeoPosition p : geolist) {
-			waypoints.add(new DefaultWaypoint(p));
-		}
 		
 		// Create a waypoint painter that takes all the waypoints
-		WaypointPainter<Waypoint> waypointPainter = new WaypointPainter<Waypoint>();
-		waypointPainter.setRenderer(new PlaceWaypointRenderer());
-		waypointPainter.setWaypoints(waypoints);
+		WaypointPainter<MapPoint> waypointPainter = new WaypointPainter<MapPoint>();
+		waypointPainter.setRenderer(new PlaceMapPointRenderer());
+		waypointPainter.setWaypoints(new HashSet<MapPoint>(pointsArray));
 		// Create a compound painter that uses both the route-painter and the waypoint-painter
 		// List<Painter<JXMapViewer>> painters = new ArrayList<Painter<JXMapViewer>>();
 

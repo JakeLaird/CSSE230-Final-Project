@@ -1,6 +1,7 @@
 package rhnavigator.map;
 
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
@@ -13,13 +14,15 @@ import org.jxmapviewer.viewer.DefaultWaypointRenderer;
 import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointRenderer;
 
-public class PlaceWaypointRenderer implements WaypointRenderer<Waypoint> {
+import rhnavigator.MapPoint;
+
+public class PlaceMapPointRenderer implements WaypointRenderer<MapPoint> {
 	private static Log log = LogFactory.getLog(DefaultWaypointRenderer.class);
 	private BufferedImage img = null;
 	/**
 	* Uses a default waypoint image
 	*/
-	public PlaceWaypointRenderer()
+	public PlaceMapPointRenderer()
 	{
 		try
 		{
@@ -31,13 +34,21 @@ public class PlaceWaypointRenderer implements WaypointRenderer<Waypoint> {
 		}
 	}
 	@Override
-	public void paintWaypoint(Graphics2D g, JXMapViewer map, Waypoint w)
+	public void paintWaypoint(Graphics2D g, JXMapViewer map, MapPoint w)
 	{
 		if (img == null)
 			return;
 		Point2D point = map.getTileFactory().geoToPixel(w.getPosition(), map.getZoom());
-		int x = (int)point.getX() -img.getWidth() / 2;
-		int y = (int)point.getY() -img.getHeight() / 2;
-		g.drawImage(img, x, y, null);
+
+		double scale = ((double)w.getInterestLevel())/10.0;
+		if (scale == 0.0) {
+			scale = 1.0;
+		}
+			
+		int width = (int) (img.getWidth() * scale);
+		int height = (int) (img.getHeight() * scale);
+		int x = (int)point.getX() -width / 2;
+		int y = (int)point.getY() -height / 2;
+		g.drawImage(img, x, y, width, height, null);
 	}
 }
