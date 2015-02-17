@@ -6,9 +6,14 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.painter.Painter;
@@ -19,6 +24,9 @@ import org.jxmapviewer.painter.Painter;
  */
 public class RoutePainter implements Painter<JXMapViewer>
 {
+  private static Log log = LogFactory.getLog(RoutePainter.class);
+  private BufferedImage startImg = null;
+  private BufferedImage endImg = null;
   private Color color;
   private boolean antiAlias = true;
   
@@ -33,6 +41,17 @@ public class RoutePainter implements Painter<JXMapViewer>
     // original list do not have an effect here
     this.track = new ArrayList<GeoPosition>(track);
     this.color = color;
+
+    try {
+      startImg = ImageIO.read(RoutePainter.class.getResource("/images/start_waypoint.png"));
+    } catch (Exception ex) {
+      log.warn("couldn't read start_waypoint.png", ex);
+    }
+    try {
+      endImg = ImageIO.read(RoutePainter.class.getResource("/images/end_waypoint.png"));
+    } catch (Exception ex) {
+      log.warn("couldn't read end_waypoint.png", ex);
+    }
   }
 
   @Override
@@ -80,6 +99,9 @@ public class RoutePainter implements Painter<JXMapViewer>
 
       if (first)
       {
+//        int x = (int)pt.getX() -startImg.getWidth() / 2;
+//        int y = (int)pt.getY() -startImg.getHeight();
+//        g.drawImage(startImg, x, y, null);
         first = false;
       }
       else
