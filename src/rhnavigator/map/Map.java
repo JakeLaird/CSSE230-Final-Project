@@ -2,6 +2,8 @@ package rhnavigator.map;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.TreeMap;
 
 import net.sf.javaml.core.kdtree.KDTree;
@@ -19,6 +21,8 @@ import rhnavigator.MapPoint;
 public class Map {
 	private TreeMap<String, MapPoint> mapPoints;
 	private KDTree kdMapPoints;
+	private List<List<MapPoint>> currentRoutes;
+	private List<PendingConnection> pendingConnections;
 
 	/**
 	 * Creates an empty Map.
@@ -26,6 +30,8 @@ public class Map {
 	public Map() {
 		mapPoints = new TreeMap<String, MapPoint>();
 		kdMapPoints = new KDTree(2); // 2 dimensions for our application
+		currentRoutes = new ArrayList<List<MapPoint>>();
+		pendingConnections = new ArrayList<PendingConnection>();
 	}
 
 	/**
@@ -43,15 +49,16 @@ public class Map {
 	 *            interest level of the new MapPoint
 	 * @return true if the map was changed
 	 */
-	public Boolean addPoint(double latitude, double longitude, String name,
+	public MapPoint addPoint(double latitude, double longitude, String name,
 			ArrayList<String> neighbors, int interestLevel) {
+		MapPoint newPoint;
 		if (mapPoints.containsKey(name)) {
-			return false;
+			newPoint = mapPoints.get(name);
+		} else {
+			newPoint = new MapPoint(latitude, longitude, name);
+			kdMapPoints.insert(new double[] { latitude, longitude }, newPoint);
+			mapPoints.put(name, newPoint);
 		}
-
-		MapPoint newPoint = new MapPoint(latitude, longitude, name);
-		kdMapPoints.insert(new double[] { latitude, longitude }, newPoint);
-		mapPoints.put(name, newPoint);
 
 		if (neighbors != null) {
 			// Iterate over all the new neighbors to add
@@ -61,25 +68,53 @@ public class Map {
 					// Link them together
 					newPoint.addNeighbor(neighborMapPoint);
 					neighborMapPoint.addNeighbor(newPoint);
+				} else {
+					PendingConnection newPending = new PendingConnection(newPoint, neighbor);
+					pendingConnections.add(newPending);
 				}
 			}
 		}
+		return newPoint;
+	}
+	
+	public boolean processPending() {
+		if (pendingConnections.isEmpty()) {
+			return false;
+		}
+		
+		for (PendingConnection p : pendingConnections) {
+			MapPoint neighbor = mapPoints.get(p.getNeighbor());
+			if (neighbor != null) {
+				MapPoint point = p.getPoint();
+				point.addNeighbor(neighbor);
+				neighbor.addNeighbor(point);
+			}
+		}
+		pendingConnections.clear();
+		
 		return true;
 	}
-
-	public String getstring(){
-		String result="";
-		for(String key:mapPoints.keySet()){
-			double la=mapPoints.get(key).latitude;
-			double lo=mapPoints.get(key).longitude;
-			String name=mapPoints.get(key).getName();
-			String nei=mapPoints.get(key).neighbors.toString();
-			int in=0;
-			String temp="["+la+","+lo+","+name+","+nei+","+in+"]\n";
-			result+=temp;
-		}
-		return result;
+	
+	public boolean hasPendingConnections() {
+		return !pendingConnections.isEmpty();
 	}
+
+	public void addRoute(List<MapPoint> newRoute) {
+		if (newRoute == null) {
+			throw new IllegalArgumentException();
+		}
+
+		currentRoutes.add(newRoute);
+	}
+
+	public List<List<MapPoint>> getRoutes() {
+		List<List<MapPoint>> returnRoutes = new ArrayList<List<MapPoint>>();
+		for (List<MapPoint> route : currentRoutes) {
+			returnRoutes.add(Collections.unmodifiableList(route));
+		}
+		return Collections.unmodifiableList(returnRoutes);
+	}
+
 	/**
 	 * Returns the number of MapPoints stored in this Map
 	 * 
@@ -120,23 +155,54 @@ public class Map {
 		return mapPoints.toString();
 	}
 
+	public String getstring(){
+		String result="";
+		for(String key:mapPoints.keySet()){
+			double la=mapPoints.get(key).latitude;
+			double lo=mapPoints.get(key).longitude;
+			String name=mapPoints.get(key).getName();
+			String nei=mapPoints.get(key).neighbors.toString();
+			int in=0;
+			String temp="["+la+","+lo+","+name+","+nei+","+in+"]\n";
+			result+=temp;
+		}
+		return result;
+	}
+	
+	private class PendingConnection {
+		private MapPoint point;
+		private String neighbor;
+		
+		public PendingConnection(MapPoint newPoint, String neighbor) {
+			this.point = newPoint;
+			this.neighbor = neighbor;
+		}
+		public MapPoint getPoint() {
+			return point;
+		}
+		public String getNeighbor() {
+			return neighbor;
+		}
+	}
+
 	public static Map getSample() {
+		List<MapPoint> newRoute = new ArrayList<MapPoint>();
 		Map map = new Map();
 
-		map.addPoint(39.483559, -87.327731, "Mees Hall", null, 0);
-		map.addPoint(39.483387, -87.328372, "Blumberg Hall",
+		newRoute.add(map.addPoint(39.483559, -87.327731, "Mees Hall", null, 0));
+		newRoute.add(map.addPoint(39.483387, -87.328372, "Blumberg Hall",
 				new ArrayList<String>() {
 					{
 						add("Mees Hall");
 					}
-				}, 0);
-		map.addPoint(39.483660, -87.328109, "Scharpenberg Hall",
+				}, 0));
+		newRoute.add(map.addPoint(39.483660, -87.328109, "Scharpenberg Hall",
 				new ArrayList<String>() {
 					{
 						add("Mees Hall");
 						add("Blumberg Hall");
 					}
-				}, 0);
+				}, 0));
 		map.addPoint(39.483590, -87.326964, "Hulman Memorial Union",
 				new ArrayList<String>() {
 					{
@@ -158,27 +224,33 @@ public class Map {
 						add("BSB Hall");
 					}
 				}, 0);
-		map.addPoint(39.482463, -87.325689, "BSB Hall",
+
+		map.addRoute(newRoute);
+		newRoute = new ArrayList<MapPoint>();
+
+		newRoute.add(map.addPoint(39.482463, -87.325689, "BSB Hall",
 				new ArrayList<String>() {
 					{
 						add("Deming Hall");
 						add("Speed Hall");
 					}
-				}, 0);
-		map.addPoint(39.482148, -87.326724, "Speed Hall",
+				}, 0));
+		newRoute.add(map.addPoint(39.482148, -87.326724, "Speed Hall",
 				new ArrayList<String>() {
 					{
 						add("Percopo Hall");
 						add("BSB Hall");
 					}
-				}, 0);
-		map.addPoint(39.482123, -87.328347, "Percopo Hall",
+				}, 0));
+		newRoute.add(map.addPoint(39.482123, -87.328347, "Percopo Hall",
 				new ArrayList<String>() {
 					{
 						add("White Chapel");
 						add("Speed Hall");
 					}
-				}, 0);
+				}, 0));
+
+		map.addRoute(newRoute);
 
 		return map;
 	}

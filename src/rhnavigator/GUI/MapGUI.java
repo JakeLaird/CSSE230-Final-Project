@@ -10,14 +10,9 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
 
-import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.OSMTileFactoryInfo;
-import org.jxmapviewer.viewer.DefaultTileFactory;
-import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.TileFactoryInfo;
+import org.json.Input;
 
 import rhnavigator.map.Map;
 import rhnavigator.map.MapView;
@@ -38,6 +33,7 @@ public class MapGUI {
 	
 	final int HOME_WIDTH = 500;
 	final int HOME_HEIGHT = HOME_WIDTH;
+	private Map map;
 	
 	public MapGUI(){
 		GridLayout homeLayout = new GridLayout(2,2);
@@ -58,6 +54,10 @@ public class MapGUI {
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+	}
+	public MapGUI(Map map) {
+		this();
+		this.map = map;
 	}
 	
 	private void mainMenu(){
@@ -86,26 +86,7 @@ public class MapGUI {
 		frame.repaint();
 		
 	}
-	private void mapPanel(){
-		
-		homeScreen.setVisible(false);
-		buttonPanel = new JPanel();
-		// Grid Layout for buttons
-		buttonPanel.setLayout(new GridLayout(8,1));
-		
-		mapPanel = new JPanel();
-		
-		
-		mapPanel.setLayout(new GridLayout(1,1));
-		mapPanel.add(new MapView(Map.getSample()));
-		
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,buttonPanel,mapPanel);
-		frame.add(splitPane);
-		buttonPanel.add(homeButton);
-		
-		frame.setSize(FRAME_WIDTH,FRAME_HEIGHT);
-		
-	}
+
 	private void searchPanel(){
 		JLabel label1 = new JLabel("Enter Location");
 		JComboBox currentLocation = new JComboBox();
@@ -217,12 +198,36 @@ public class MapGUI {
 			}
 		};
 		homeButton.addActionListener(mainMenuListener);
+	}
+	private void mapPanel(){
 		
+		homeScreen.setVisible(false);
+		buttonPanel = new JPanel();
+		// Grid Layout for buttons
+		buttonPanel.setLayout(new GridLayout(8,1));
+		
+		mapPanel = new JPanel();
+		
+		
+		mapPanel.setLayout(new GridLayout(1,1));
+		mapPanel.add(new MapView(this.map));
+		
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,buttonPanel,mapPanel);
+		frame.add(splitPane);
+		buttonPanel.add(homeButton);
+		
+		frame.setSize(FRAME_WIDTH,FRAME_HEIGHT);
 		
 	}
-	
+
 public static void main(String[] args) {
-	MapGUI map = new MapGUI();	
+//	MapGUI map = new MapGUI();
 	
+//	Map map = Map.getSample();
+	// System.out.println(map.getstring());
+//	Input.buildtext(map, "first", true);
+	Map secondmap=Input.output("ipython/USCities.txt");
+	
+	MapGUI map = new MapGUI(secondmap);
 	}
 }
