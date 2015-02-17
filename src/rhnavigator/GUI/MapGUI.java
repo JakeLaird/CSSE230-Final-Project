@@ -91,8 +91,9 @@ public class MapGUI {
 
 	private void searchPanel(){
 		JLabel label1 = new JLabel("Enter Location");
-		JComboBox currentLocation = new JComboBox();
+		JComboBox currentLocation = new JComboBox(map.toArrayList().toArray());
 		currentLocation.setEditable(true);
+		AutoCompleteDecorator.decorate(currentLocation);
 		splitPane.setDividerLocation((FRAME_WIDTH/4));
 		
 		JButton inputButton = new JButton("Search!");
@@ -114,7 +115,7 @@ public class MapGUI {
 		JLabel attractionsLabel = new JLabel("Nearby Attractions:");
 		JComboBox nearAttractions = new JComboBox();
 		
-		JButton inputButton = new JButton("Search!");
+		final JButton inputButton = new JButton("Search!");
 		ActionListener inputListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
 				addRadioButtons(inputButton);
@@ -221,8 +222,6 @@ public class MapGUI {
 		frame.setSize(FRAME_WIDTH,FRAME_HEIGHT);
 		
 	}
-		JComboBox currentLocation = new JComboBox(map.toArrayList().toArray());
-		AutoCompleteDecorator.decorate(currentLocation);
 
 public static void main(String[] args) {
 //	MapGUI map = new MapGUI();
