@@ -98,6 +98,7 @@ public class MapPoint implements Waypoint {
 				if (tempPath.contains(n)) {
 					continue;
 				}
+				@SuppressWarnings("unchecked")
 				LinkedList<MapPoint> newPath = (LinkedList<MapPoint>) tempPath.clone();
 				newPath.add(n);
 				int tempCost = tempPathNode.currentCost

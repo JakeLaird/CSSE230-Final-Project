@@ -133,8 +133,6 @@ public class MapView extends JXMapViewer {
 				temp.add(p);
 				temp.add(n.point);
 				
-//				System.err.println(Math.sqrt(((double)n.getCost())));
-				
 				double hue = (1.0-(Math.sqrt(((double)n.getCost()))/maxCost))*(1.0/2.0);
 				
 				painterList.add(new RoutePainter(getGeoPosition(temp), new Color(Color.HSBtoRGB((float)hue, 1.0f, 1.0f))));
@@ -153,7 +151,7 @@ public class MapView extends JXMapViewer {
 		for (List<MapPoint> route : map.getRoutes()) {
 			Color c = colors.pop();
 			
-//			painterList.add(new RoutePainter(getGeoPosition(route), new Color(c.getRed(), c.getGreen(), c.getBlue(), 200)));
+			painterList.add(new RoutePainter(getGeoPosition(route), new Color(c.getRed(), c.getGreen(), c.getBlue(), 200)));
 		}
 		return painterList;
 	}
