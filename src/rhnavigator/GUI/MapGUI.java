@@ -12,12 +12,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.json.Input;
 
+import rhnavigator.MapPoint;
 import rhnavigator.map.Map;
 import rhnavigator.map.MapView;
-
-import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 public class MapGUI {
 	//Static because only one instance of each.
@@ -26,7 +26,8 @@ public class MapGUI {
 	static JPanel buttonPanel,mapPanel,homeScreen, settingsPanel;
 	static JButton search,attractions, goHome, settings,homeButton;
 	static JCheckBox checkBox;
-	static String homeLocation;
+	static String homeLocation,loc;
+	static MapView view;
 	
 	final static int MAP_WIDTH = 700;
 	final static int MAP_HEIGHT = 500;
@@ -100,7 +101,8 @@ public class MapGUI {
 		ActionListener inputListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
 //				currentLocation
-				findOnMap();
+//				loc = currentLocation.getSelectedItem();
+				findOnMap((MapPoint)currentLocation.getSelectedItem());
 			}
 		};
 		inputButton.addActionListener(inputListener);
@@ -142,7 +144,8 @@ public class MapGUI {
 		buttonPanel.add(checkBox);
 		splitPane.setLeftComponent(buttonPanel);
 	}
-	private void findOnMap(){
+	private void findOnMap(MapPoint location){
+
 		//Find a location on the map here
 	}
 	
@@ -213,7 +216,8 @@ public class MapGUI {
 		
 		
 		mapPanel.setLayout(new GridLayout(1,1));
-		mapPanel.add(new MapView(this.map));
+		view = new MapView(this.map);
+		mapPanel.add(view);
 		
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,buttonPanel,mapPanel);
 		frame.add(splitPane);

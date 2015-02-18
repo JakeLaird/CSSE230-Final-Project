@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.painter.Painter;
+import org.jxmapviewer.viewer.GeoPosition;
 
 /**
  * Paints a route

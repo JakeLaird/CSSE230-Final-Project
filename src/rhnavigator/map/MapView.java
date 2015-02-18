@@ -2,18 +2,12 @@ package rhnavigator.map;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Stack;
 
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
 import org.jxmapviewer.JXMapViewer;

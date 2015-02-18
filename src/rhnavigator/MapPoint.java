@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import rhnavigator.costfunctions.*;
+import rhnavigator.costfunctions.CostFunction;
+import rhnavigator.costfunctions.DistanceCostFunction;
 
 
 /**
