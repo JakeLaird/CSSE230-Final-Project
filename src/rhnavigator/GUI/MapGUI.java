@@ -237,8 +237,13 @@ public static void main(String[] args) {
 //	Input.buildtext(map, "first", true);
 	Map secondmap=Input.output("ipython/USCities.txt");
 	// List<MapPoint> r = new ArrayList<MapPoint>();
-	MapPoint start = secondmap.findByName("Carrollton_TX");
+	MapPoint start = secondmap.findByName("Terre Haute_IN");
 	MapPoint end = secondmap.findByName("Boulder_CO");
+	secondmap.addRoute(start.getShortestDistancePath(end));
+	
+
+	start = secondmap.findByName("Terre Haute_IN");
+	end = secondmap.findByName("New York City_NY");
 	secondmap.addRoute(start.getShortestDistancePath(end));
 	// secondmap.addRoute(r);
 	

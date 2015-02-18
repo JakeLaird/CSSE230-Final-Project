@@ -36,14 +36,21 @@ public class SimpleMapPointRenderer implements WaypointRenderer<MapPoint> {
 	public void paintWaypoint(Graphics2D g, JXMapViewer map, MapPoint w) {
 		if (img == null)
 			return;
-		
-		Point2D point = map.getTileFactory().geoToPixel(w.getPosition(),
-				map.getZoom());
 
-		int width = (int) (img.getWidth());
-		int height = (int) (img.getHeight());
+		int zoom = map.getZoom();
+		
+		Point2D point = map.getTileFactory().geoToPixel(w.getPosition(), zoom);
+		
+		double scale = 1.0;
+		
+		if (zoom > 12) {
+			scale *= (12.0/(2.0*zoom));
+		}
+
+		int width = (int) (img.getWidth() * scale);
+		int height = (int) (img.getHeight() * scale);
 		int x = (int) point.getX() - width / 2;
-		int y = (int) point.getY() - height;
+		int y = (int) point.getY() - height / 2;
 		g.drawImage(img, x, y, width, height, null);
 	}
 }

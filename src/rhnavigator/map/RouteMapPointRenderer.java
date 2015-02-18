@@ -46,11 +46,19 @@ public class RouteMapPointRenderer implements WaypointRenderer<MapPoint> {
 	{
 		if (img == null)
 			return;
-		Point2D point = map.getTileFactory().geoToPixel(w.getPosition(), map.getZoom());
+		
+		int zoom = map.getZoom();
 
-			
-		int width = (int) (img.getWidth());
-		int height = (int) (img.getHeight());
+		Point2D point = map.getTileFactory().geoToPixel(w.getPosition(), zoom);
+		
+		double scale = 1.0;
+		
+		if (zoom > 12) {
+			scale *= (12.0/(1.5*zoom));
+		}
+
+		int width = (int) (img.getWidth() * scale);
+		int height = (int) (img.getHeight() * scale);
 		int x = (int)point.getX() -width / 2;
 		int y = (int)point.getY() -height;
 		g.drawImage(img, x, y, width, height, null);
