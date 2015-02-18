@@ -3,7 +3,9 @@ package rhnavigator.map;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
 import net.sf.javaml.core.kdtree.KDTree;
@@ -49,8 +51,51 @@ public class Map {
 	 *            interest level of the new MapPoint
 	 * @return true if the map was changed
 	 */
+	public MapPoint addPointWithCost(double latitude, double longitude, String name,
+			List<NeighborConnection> neighbors, int interestLevel) {
+		MapPoint newPoint;
+		if (mapPoints.containsKey(name)) {
+			newPoint = mapPoints.get(name);
+		} else {
+			newPoint = new MapPoint(latitude, longitude, name, interestLevel);
+			kdMapPoints.insert(new double[] { latitude, longitude }, newPoint);
+			mapPoints.put(name, newPoint);
+		}
+
+		if (neighbors != null) {
+			// Iterate over all the new neighbors to add
+			for (NeighborConnection neighbor : neighbors) {
+				MapPoint neighborMapPoint = mapPoints.get(neighbor.getNeighbor());
+				if (neighborMapPoint != null) {
+					// Link them together
+					newPoint.addNeighbor(neighborMapPoint);
+					neighborMapPoint.addNeighbor(newPoint);
+				} else {
+					PendingConnection newPending = new PendingConnection(newPoint, neighbor);
+					pendingConnections.add(newPending);
+				}
+			}
+		}
+		return newPoint;
+	}
+	
+	/**
+	 * Creates and inserts a new MapPoint into the Map.
+	 * 
+	 * @param latitude
+	 *            latitude for the new MapPoint
+	 * @param longitude
+	 *            longitude for the new MapPoint
+	 * @param name
+	 *            name for the new MapPoint
+	 * @param neighbors
+	 *            list of names of neighboring MapPoints
+	 * @param interestLevel
+	 *            interest level of the new MapPoint
+	 * @return true if the map was changed
+	 */
 	public MapPoint addPoint(double latitude, double longitude, String name,
-			ArrayList<String> neighbors, int interestLevel) {
+			List<String> neighbors, int interestLevel) {
 		MapPoint newPoint;
 		if (mapPoints.containsKey(name)) {
 			newPoint = mapPoints.get(name);
@@ -83,11 +128,12 @@ public class Map {
 		}
 		
 		for (PendingConnection p : pendingConnections) {
-			MapPoint neighbor = mapPoints.get(p.getNeighbor());
+			MapPoint neighbor = mapPoints.get(p.getNeighborConnection().getNeighbor());
 			if (neighbor != null) {
 				MapPoint point = p.getPoint();
-				point.addNeighbor(neighbor);
-				neighbor.addNeighbor(point);
+				int cost = p.getNeighborConnection().getCost();
+				point.addNeighbor(neighbor, cost);
+				neighbor.addNeighbor(point, cost);
 			}
 		}
 		pendingConnections.clear();
@@ -169,18 +215,40 @@ public class Map {
 		return result;
 	}
 	
+	public static class NeighborConnection {
+		private String neighbor;
+		private int cost;
+		
+		public NeighborConnection(String neighbor, int cost) {
+			this.cost = cost;
+			this.neighbor = neighbor;
+		}
+		
+		public String getNeighbor() {
+			return neighbor;
+		}
+		
+		public int getCost() {
+			return cost;
+		}
+	}
+	
 	private class PendingConnection {
 		private MapPoint point;
-		private String neighbor;
+		private NeighborConnection neighbor;
 		
-		public PendingConnection(MapPoint newPoint, String neighbor) {
+		public PendingConnection(MapPoint newPoint, NeighborConnection neighbor) {
 			this.point = newPoint;
 			this.neighbor = neighbor;
+		}
+		public PendingConnection(MapPoint newPoint, String neighbor) {
+			this.point = newPoint;
+			this.neighbor = new NeighborConnection(neighbor, 0);
 		}
 		public MapPoint getPoint() {
 			return point;
 		}
-		public String getNeighbor() {
+		public NeighborConnection getNeighborConnection() {
 			return neighbor;
 		}
 	}

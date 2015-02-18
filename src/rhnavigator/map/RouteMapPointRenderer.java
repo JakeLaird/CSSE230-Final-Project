@@ -16,21 +16,29 @@ import org.jxmapviewer.viewer.WaypointRenderer;
 
 import rhnavigator.MapPoint;
 
-public class PlaceMapPointRenderer implements WaypointRenderer<MapPoint> {
+public class RouteMapPointRenderer implements WaypointRenderer<MapPoint> {
 	private static Log log = LogFactory.getLog(DefaultWaypointRenderer.class);
 	private BufferedImage img = null;
+	
+	public enum	PointType {
+		START, END
+	}
 	/**
 	* Uses a default waypoint image
 	*/
-	public PlaceMapPointRenderer()
-	{
-		try
-		{
-			img = ImageIO.read(DefaultWaypointRenderer.class.getResource("/images/simple_waypoint.png"));
-		}
-		catch (Exception ex)
-		{
-		log.warn("couldn't read standard_waypoint.png", ex);
+	public RouteMapPointRenderer(PointType type) {
+		if (type == PointType.START) {
+			try {
+		      img = ImageIO.read(RoutePainter.class.getResource("/images/start_waypoint.png"));
+		    } catch (Exception ex) {
+		      log.warn("couldn't read start_waypoint.png", ex);
+		    }
+		} else {
+		    try {
+		      img = ImageIO.read(RoutePainter.class.getResource("/images/end_waypoint.png"));
+		    } catch (Exception ex) {
+		      log.warn("couldn't read end_waypoint.png", ex);
+		    }
 		}
 	}
 	@Override
@@ -40,15 +48,11 @@ public class PlaceMapPointRenderer implements WaypointRenderer<MapPoint> {
 			return;
 		Point2D point = map.getTileFactory().geoToPixel(w.getPosition(), map.getZoom());
 
-		double scale = ((double)w.getInterestLevel())/10.0;
-		if (scale == 0.0) {
-			scale = 1.0;
-		}
 			
-		int width = (int) (img.getWidth() * scale);
-		int height = (int) (img.getHeight() * scale);
+		int width = (int) (img.getWidth());
+		int height = (int) (img.getHeight());
 		int x = (int)point.getX() -width / 2;
-		int y = (int)point.getY() -height / 2;
+		int y = (int)point.getY() -height;
 		g.drawImage(img, x, y, width, height, null);
 	}
 }

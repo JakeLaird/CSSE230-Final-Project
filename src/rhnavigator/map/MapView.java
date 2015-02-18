@@ -33,6 +33,7 @@ import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointPainter;
 
 import rhnavigator.MapPoint;
+import rhnavigator.MapPoint.NeighboringPoint;
 
 /**
  * A view into a specific Map
@@ -48,58 +49,35 @@ public class MapView extends JXMapViewer {
 	public MapView(Map map) {
 		this.map = map;
 
-		// Create a TileFactoryInfo for OpenStreetMap
-		TileFactoryInfo info = new OSMTileFactoryInfo();
-		DefaultTileFactory tileFactory = new DefaultTileFactory(info);
-
-		tileFactory.setThreadPoolSize(8);
-
-		// Setup local file cache
-		File cacheDir = new File(System.getProperty("user.home") + File.separator + ".jxmapviewer2");
-		LocalResponseCache.installResponseCache(info.getBaseURL(), cacheDir, false);
-
-		this.setTileFactory(tileFactory);
+		setupTileSource();		
+		setupInteractionHandlers();
 
 		GeoPosition rose = new GeoPosition(39.483192, -87.323958);
 		this.setZoom(12);
 		this.setAddressLocation(rose);
 
-		// Add interactions
-		MouseInputListener mia = new PanMouseInputListener(this);
-		this.addMouseListener(mia);
-		this.addMouseMotionListener(mia);
-		this.addMouseListener(new CenterMapListener(this));
-		this.addMouseWheelListener(new ZoomMouseWheelListenerCursor(this));
-		this.addKeyListener(new PanKeyListener(this));
-
-		ArrayList<MapPoint> pointsArray = map.toArrayList();
-
 		List<Painter<JXMapViewer>> painters = new ArrayList<Painter<JXMapViewer>>();
 
-		for (MapPoint p : pointsArray) {
-			for (MapPoint n : p.getNeighbors()) {
-				List<MapPoint> temp = new ArrayList<MapPoint>();
-				temp.add(p);
-				temp.add(n);
-				painters.add(new RoutePainter(getGeoPosition(temp), Color.GREEN));
-			}
-		}
+		// Paints lines to show all connectections between neighbors
+		painters.addAll(getNeighborPainters());
 		
 		// Create a waypoint painter that takes all the waypoints
 		WaypointPainter<MapPoint> waypointPainter = new WaypointPainter<MapPoint>();
-		waypointPainter.setRenderer(new PlaceMapPointRenderer());
-		waypointPainter.setWaypoints(new HashSet<MapPoint>(pointsArray));
-		// Create a compound painter that uses both the route-painter and the waypoint-painter
-		// List<Painter<JXMapViewer>> painters = new ArrayList<Painter<JXMapViewer>>();
+		waypointPainter.setRenderer(new SizedMapPointRenderer());
 
-		Stack<Color> colors = new Stack<Color>();
-		colors.add(Color.RED);
-		colors.add(Color.BLUE);
-		colors.add(Color.GREEN);
+		// If there are no routes, draw all places as waypoints. Otherwise only draw points on routes
+		List<List<MapPoint>> routes = map.getRoutes();
+		if (routes.isEmpty()) {
+			waypointPainter.setWaypoints(new HashSet<MapPoint>(map.toArrayList()));
+		} else {
+			HashSet<MapPoint> points = new HashSet<MapPoint>();
+			for (List<MapPoint> route : routes) {
+				points.addAll(route);
+			}
+			waypointPainter.setWaypoints(points);
+		}
 
-		// for (List<MapPoint> route : map.getRoutes()) {
-		// 	painters.add(new RoutePainter(getGeoPosition(route), colors.pop()));
-		// }
+		painters.addAll(getRoutePainters());
 
 		painters.add(waypointPainter);
 		CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(painters);
@@ -120,5 +98,63 @@ public class MapView extends JXMapViewer {
 			returnList.add(getGeoPosition(p));
 		}
 		return returnList;
+	}
+
+	private void setupInteractionHandlers() {
+		// Add interactions
+		MouseInputListener mia = new PanMouseInputListener(this);
+		this.addMouseListener(mia);
+		this.addMouseMotionListener(mia);
+		this.addMouseListener(new CenterMapListener(this));
+		this.addMouseWheelListener(new ZoomMouseWheelListenerCursor(this));
+		this.addKeyListener(new PanKeyListener(this));
+	}
+
+	private void setupTileSource() {
+		// Create a TileFactoryInfo for OpenStreetMap
+		TileFactoryInfo info = new OSMTileFactoryInfo();
+		DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+
+		tileFactory.setThreadPoolSize(8);
+
+		// Setup local file cache
+		File cacheDir = new File(System.getProperty("user.home") + File.separator + ".jxmapviewer2");
+		LocalResponseCache.installResponseCache(info.getBaseURL(), cacheDir, false);
+
+		this.setTileFactory(tileFactory);
+	}
+
+	private List<Painter<JXMapViewer>> getNeighborPainters() {
+		List<Painter<JXMapViewer>> painterList = new ArrayList<Painter<JXMapViewer>>();
+		double maxCost = 15.0;
+		 for (MapPoint p : map.toArrayList()) {
+			for (NeighboringPoint n : p.getNeighborsWithCosts()) {
+				List<MapPoint> temp = new ArrayList<MapPoint>();
+				temp.add(p);
+				temp.add(n.point);
+				
+//				System.err.println(Math.sqrt(((double)n.getCost())));
+				
+				double hue = (1.0-(Math.sqrt(((double)n.getCost()))/maxCost))*(1.0/2.0);
+				
+				painterList.add(new RoutePainter(getGeoPosition(temp), new Color(Color.HSBtoRGB((float)hue, 1.0f, 1.0f))));
+			}
+		}
+		return painterList;
+	}
+
+	private List<Painter<JXMapViewer>> getRoutePainters() {
+		List<Painter<JXMapViewer>> painterList = new ArrayList<Painter<JXMapViewer>>();
+		Stack<Color> colors = new Stack<Color>();
+		colors.add(Color.RED);
+		colors.add(Color.BLUE);
+//		colors.add(Color.GREEN);
+
+		for (List<MapPoint> route : map.getRoutes()) {
+			Color c = colors.pop();
+			
+//			painterList.add(new RoutePainter(getGeoPosition(route), new Color(c.getRed(), c.getGreen(), c.getBlue(), 200)));
+		}
+		return painterList;
 	}
 }
