@@ -7,8 +7,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import rhnavigator.map.Map;
+import rhnavigator.map.Map.NeighborConnection;
 
 public class Input {
 	public static void main(String[] args) {
@@ -77,15 +79,16 @@ public class Input {
 					double latitude = (double) arr.get(0);
 					double longitude = (double) arr.get(1);
 					String name = (String) arr.get(2);
-					ArrayList<String> list = new ArrayList<String>();
-					for (int i = 0; i < arrr.length(); i++) {
-						list.add(arrr.get(i).toString()
-								.substring(1, arrr.get(i).toString().length()));
+					List<NeighborConnection> list = new ArrayList<NeighborConnection>();
+					for (int i = 0; i < arrr.length(); i+=2) {
+						String neighborName = arrr.get(i).toString().substring(0, arrr.get(i).toString().length()).replaceAll("<|>","");
+						String cost = arrr.get(i+1).toString().substring(0, arrr.get(i+1).toString().length()).replaceAll("<|>","");
+						list.add(new NeighborConnection(neighborName, (int) Double.parseDouble(cost)));
 
 					}
-					ArrayList<String> neighbors = list;
+					List<NeighborConnection> neighbors = list;
 					int interestLevel = (int) arr.get(4);
-					map.addPoint(latitude, longitude, name, neighbors,
+					map.addPointWithCost(latitude, longitude, name, neighbors,
 							interestLevel);
 				} else {
 					break;

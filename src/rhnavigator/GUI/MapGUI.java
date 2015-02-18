@@ -3,6 +3,8 @@ package rhnavigator.GUI;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -234,6 +236,11 @@ public static void main(String[] args) {
 	// System.out.println(map.getstring());
 //	Input.buildtext(map, "first", true);
 	Map secondmap=Input.output("ipython/USCities.txt");
+	// List<MapPoint> r = new ArrayList<MapPoint>();
+	MapPoint start = secondmap.findByName("Carrollton_TX");
+	MapPoint end = secondmap.findByName("Boulder_CO");
+	secondmap.addRoute(start.getShortestDistancePath(end));
+	// secondmap.addRoute(r);
 	
 	MapGUI map = new MapGUI(secondmap);
 	}

@@ -13,7 +13,7 @@ public class DistanceCostFunction implements CostFunction {
   public int calculate(MapPoint p1, MapPoint p2) {
 
     // Taken from here: http://www.movable-type.co.uk/scripts/latlong.html    
-    double R = 6371000; // metres
+    double R = 6371; // kilometres
     double phi1 = Math.toRadians(p1.latitude);
     double phi2 = Math.toRadians(p2.latitude);
 
