@@ -63,17 +63,18 @@ public class MapView extends JXMapViewer {
 		
 		// Create a waypoint painter that takes all the waypoints
 		WaypointPainter<MapPoint> waypointPainter = new WaypointPainter<MapPoint>();
-		waypointPainter.setRenderer(new SizedMapPointRenderer());
 
 		// If there are no routes, draw all places as waypoints. Otherwise only draw points on routes
 		List<List<MapPoint>> routes = map.getRoutes();
 		if (routes.isEmpty()) {
 			waypointPainter.setWaypoints(new HashSet<MapPoint>(map.toArrayList()));
+			waypointPainter.setRenderer(new SizedMapPointRenderer());
 		} else {
 			HashSet<MapPoint> points = new HashSet<MapPoint>();
 			for (List<MapPoint> route : routes) {
 				points.addAll(route);
 			}
+			waypointPainter.setRenderer(new SimpleMapPointRenderer());
 			waypointPainter.setWaypoints(points);
 		}
 
