@@ -34,6 +34,7 @@ import org.jxmapviewer.viewer.WaypointPainter;
 
 import rhnavigator.MapPoint;
 import rhnavigator.MapPoint.NeighboringPoint;
+import rhnavigator.map.RouteMapPointRenderer.PointType;
 
 /**
  * A view into a specific Map
@@ -62,25 +63,20 @@ public class MapView extends JXMapViewer {
 		painters.addAll(getNeighborPainters());
 		
 		// Create a waypoint painter that takes all the waypoints
-		WaypointPainter<MapPoint> waypointPainter = new WaypointPainter<MapPoint>();
+		
 
-		// If there are no routes, draw all places as waypoints. Otherwise only draw points on routes
-		List<List<MapPoint>> routes = map.getRoutes();
-		if (routes.isEmpty()) {
+		// If there are no routes, draw all places as waypoints.
+		if (map.getRoutes().isEmpty()) {
+			WaypointPainter<MapPoint> waypointPainter = new WaypointPainter<MapPoint>();
+
 			waypointPainter.setWaypoints(new HashSet<MapPoint>(map.toArrayList()));
 			waypointPainter.setRenderer(new SizedMapPointRenderer());
-		} else {
-			HashSet<MapPoint> points = new HashSet<MapPoint>();
-			for (List<MapPoint> route : routes) {
-				points.addAll(route);
-			}
-			waypointPainter.setRenderer(new SimpleMapPointRenderer());
-			waypointPainter.setWaypoints(points);
+
+			painters.add(waypointPainter);
 		}
 
 		painters.addAll(getRoutePainters());
 
-		painters.add(waypointPainter);
 		CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(painters);
 		this.setOverlayPainter(painter);
 	}
@@ -144,16 +140,41 @@ public class MapView extends JXMapViewer {
 
 	private List<Painter<JXMapViewer>> getRoutePainters() {
 		List<Painter<JXMapViewer>> painterList = new ArrayList<Painter<JXMapViewer>>();
+
 		Stack<Color> colors = new Stack<Color>();
 		colors.add(Color.RED);
 		colors.add(Color.BLUE);
 //		colors.add(Color.GREEN);
 
+		WaypointPainter<MapPoint> routeEndPainter = new WaypointPainter<MapPoint>();
+		routeEndPainter.setRenderer(new RouteMapPointRenderer(PointType.END));
+		Set<MapPoint> routeEndPoints = new HashSet<MapPoint>();
+
+		WaypointPainter<MapPoint> routeStartPainter = new WaypointPainter<MapPoint>();
+		routeStartPainter.setRenderer(new RouteMapPointRenderer(PointType.START));
+		Set<MapPoint> routeStartPoints = new HashSet<MapPoint>();
+		
+		WaypointPainter<MapPoint> routePointsPainter = new WaypointPainter<MapPoint>();
+		routePointsPainter.setRenderer(new SimpleMapPointRenderer());
+		HashSet<MapPoint> routePoints = new HashSet<MapPoint>();
+
 		for (List<MapPoint> route : map.getRoutes()) {
+			route = new ArrayList<MapPoint>(route);
 			Color c = colors.pop();
-			
 			painterList.add(new RoutePainter(getGeoPosition(route), new Color(c.getRed(), c.getGreen(), c.getBlue(), 200)));
+
+			routeEndPoints.add(route.remove(route.size()-1));
+			routeStartPoints.add(route.remove(0));
+			routePoints.addAll(route);
 		}
+		
+		routeEndPainter.setWaypoints(routeEndPoints);
+		routeStartPainter.setWaypoints(routeStartPoints);
+		routePointsPainter.setWaypoints(routePoints);
+		
+		painterList.add(routePointsPainter);
+		painterList.add(routeEndPainter);
+		painterList.add(routeStartPainter);
 		return painterList;
 	}
 }
