@@ -3,8 +3,6 @@ package rhnavigator.GUI;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -14,22 +12,25 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.json.Input;
+import org.jxmapviewer.viewer.GeoPosition;
 
 import rhnavigator.MapPoint;
 import rhnavigator.map.Map;
 import rhnavigator.map.MapView;
-
-import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 public class MapGUI {
 	//Static because only one instance of each.
 	static JFrame frame;
 	static JSplitPane splitPane;
 	static JPanel buttonPanel,mapPanel,homeScreen, settingsPanel;
-	static JButton search,attractions, goHome, settings,homeButton;
+	static JButton search,attractions, goHome, settings,homeButton,route, findCityButton;
+	static JComboBox currentLocation,startLocation,endLocation;
 	static JCheckBox checkBox;
-	static String homeLocation;
+	static String homeLocation,loc;
+	static MapView view;
+	static MapPoint start,end;
 	
 	final static int MAP_WIDTH = 700;
 	final static int MAP_HEIGHT = 500;
@@ -74,14 +75,15 @@ public class MapGUI {
 		
 	}
 	private void settingsPanel(){
+		buttonPanel = null;
 		homeScreen.setVisible(false);
 		buttonPanel = new JPanel();
-		buttonPanel.setLayout(new GridLayout(8,1));
+		buttonPanel.setLayout(new GridLayout(9,1));
 		
 		settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridLayout(1,2));
 		
-		JComboBox inputBox = new JComboBox();
+		JComboBox<MapPoint> inputBox = new JComboBox<MapPoint>();
 		
 		buttonPanel.add(homeButton);
 		
@@ -94,23 +96,43 @@ public class MapGUI {
 
 	private void searchPanel(){
 		JLabel label1 = new JLabel("Enter Location");
-		JComboBox currentLocation = new JComboBox(map.toArrayList().toArray());
+		JLabel label2 = new JLabel("Start Location");
+		JLabel label3 = new JLabel("Final Location");
+		
+		currentLocation = new JComboBox(map.toArrayList().toArray());
+		startLocation = new JComboBox(map.toArrayList().toArray());
+		endLocation = new JComboBox(map.toArrayList().toArray());
+		
 		currentLocation.setEditable(true);
+		startLocation.setEditable(true);
+		endLocation.setEditable(true);
+		
 		AutoCompleteDecorator.decorate(currentLocation);
+		AutoCompleteDecorator.decorate(startLocation);
+		AutoCompleteDecorator.decorate(endLocation);
+
 		splitPane.setDividerLocation((FRAME_WIDTH/4));
 		
-		JButton inputButton = new JButton("Search!");
-		ActionListener inputListener = new ActionListener() {
+		
+		ActionListener routeListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
-//				currentLocation
-				findOnMap();
+				start = map.findByName(startLocation.getSelectedItem().toString());
+				end = map.findByName(endLocation.getSelectedItem().toString());
+				map.addRoute(start.getShortestDistancePath(end));
+				
 			}
 		};
-		inputButton.addActionListener(inputListener);
+		route.addActionListener(routeListener);
 		
+//		JButton inputButton = new JButton()
 		buttonPanel.add(label1);
 		buttonPanel.add(currentLocation);
-		buttonPanel.add(inputButton);
+		buttonPanel.add(findCityButton);
+		buttonPanel.add(label2);
+		buttonPanel.add(startLocation);
+		buttonPanel.add(label3);
+		buttonPanel.add(endLocation);
+		buttonPanel.add(route);
 	}
 	
 	private void attractionsPanel(){
@@ -136,6 +158,7 @@ public class MapGUI {
 		buttonPanel.add(inputButton);
 		
 	}
+	
 	private void addRadioButtons(JButton button){
 		buttonPanel = new JPanel();
 		buttonPanel.setLayout(new GridLayout(6,1));
@@ -145,7 +168,11 @@ public class MapGUI {
 		buttonPanel.add(checkBox);
 		splitPane.setLeftComponent(buttonPanel);
 	}
-	private void findOnMap(){
+	
+	private void findOnMap(MapPoint location){
+//		System.out.println(location);
+		view.setAddressLocation(new GeoPosition(location.latitude,location.longitude));
+		view.setZoom(6);
 		//Find a location on the map here
 	}
 	
@@ -204,19 +231,31 @@ public class MapGUI {
 			}
 		};
 		homeButton.addActionListener(mainMenuListener);
+		
+		findCityButton = new JButton("Search!");
+		ActionListener findCityListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				findOnMap((MapPoint)currentLocation.getSelectedItem());
+			}
+		};
+		findCityButton.addActionListener(findCityListener);
+		
+		route = new JButton("Route!");
+		
 	}
 	private void mapPanel(){
 		
 		homeScreen.setVisible(false);
 		buttonPanel = new JPanel();
 		// Grid Layout for buttons
-		buttonPanel.setLayout(new GridLayout(8,1));
+		buttonPanel.setLayout(new GridLayout(9,1));
 		
 		mapPanel = new JPanel();
 		
 		
 		mapPanel.setLayout(new GridLayout(1,1));
-		mapPanel.add(new MapView(this.map));
+		view = new MapView(this.map);
+		mapPanel.add(view);
 		
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,buttonPanel,mapPanel);
 		frame.add(splitPane);
@@ -227,23 +266,13 @@ public class MapGUI {
 	}
 
 public static void main(String[] args) {
-//	MapGUI map = new MapGUI();
-	
-//	Map map = Map.getSample();
-	// System.out.println(map.getstring());
-//	Input.buildtext(map, "first", true);
-	Map secondmap=Input.output("ipython/USCities.txt");
+	Map map = Input.output("ipython/USCities.txt");
 	// List<MapPoint> r = new ArrayList<MapPoint>();
-	MapPoint start = secondmap.findByName("Terre Haute_IN");
-	MapPoint end = secondmap.findByName("Boulder_CO");
-	secondmap.addRoute(start.getShortestDistancePath(end));
 	
-
-//	start = secondmap.findByName("Terre Haute_IN");
-//	end = secondmap.findByName("New York City_NY");
-//	secondmap.addRoute(start.getShortestDistancePath(end));
-	// secondmap.addRoute(r);
+//	MapPoint start = map.findByName("Terre Haute_IN");
+//	MapPoint end = map.findByName("Boulder_CO");
+//	map.addRoute(start.getShortestDistancePath(end));
 	
-	MapGUI map = new MapGUI(secondmap);
+	MapGUI mapGUI = new MapGUI(map);
 	}
 }
