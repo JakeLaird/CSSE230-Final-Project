@@ -5,16 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Stack;
-import java.util.Stack;
 
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.Waypoint;
 
-import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.Waypoint;
+import rhnavigator.costfunctions.*;
 
-import rhnavigator.costfunctions.CostFunction;
-import rhnavigator.costfunctions.DistanceCostFunction;
 /**
  * @author Jake Taylor David Runzhi
  *
@@ -183,21 +179,6 @@ public class MapPoint implements Waypoint {
 		}
 
 		public String toString() {
-
-			return "<" + point.getName() + ", " + cost + ">";
-		}
-	}
-
-	public String toString() {
-		// return "\n(" + name + ", " + neighbors.toString() + ")\n";
-		return name;
-	}
-
-	public void addNeighbor(MapPoint neighbor, int cost) {
-		NeighboringPoint neighboringPoint = new NeighboringPoint(neighbor, cost);
-		neighbors.add(neighboringPoint);
-	}
-}
 			return "<" + point.getName() + ", " + cost + ">";
 		}
 	}
