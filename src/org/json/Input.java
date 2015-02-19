@@ -85,10 +85,14 @@ public class Input {
 						String neighborName = arrr.get(i).toString().substring(0, arrr.get(i).toString().length()).replaceAll("<|>","");
 						String distanceCost = arrr.get(i+1).toString().substring(0, arrr.get(i+1).toString().length()).replaceAll("<|>","");
 						String timeCost = arrr.get(i+2).toString().substring(0, arrr.get(i+2).toString().length()).replaceAll("<|>","");
+						try {
 						list.add(new NeighborConnection(neighborName,
 								(int) Double.parseDouble(distanceCost),
 								(int) Double.parseDouble(timeCost)));
 
+						} catch (Exception e) {
+							System.err.print(false);
+						}
 					}
 					List<NeighborConnection> neighbors = list;
 					int interestLevel = (int) arr.get(4);
