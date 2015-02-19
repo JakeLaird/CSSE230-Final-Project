@@ -17,6 +17,7 @@ import org.jxmapviewer.input.CenterMapListener;
 import org.jxmapviewer.input.PanKeyListener;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
+import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
@@ -39,6 +40,9 @@ import rhnavigator.map.RouteMapPointRenderer.PointType;
 
 public class MapView extends JXMapViewer {
 	private Map map;
+	private CompoundPainter<JXMapViewer> compPainter;
+	private List<Painter<JXMapViewer>> defaultPainters;
+	private List<Painter<JXMapViewer>> routePainters;
 
 	public MapView(Map map) {
 		this.map = map;
@@ -50,10 +54,11 @@ public class MapView extends JXMapViewer {
 		this.setZoom(12);
 		this.setAddressLocation(rose);
 
-		List<Painter<JXMapViewer>> painters = new ArrayList<Painter<JXMapViewer>>();
+		defaultPainters = new ArrayList<Painter<JXMapViewer>>();
+		routePainters = new ArrayList<Painter<JXMapViewer>>();
 
 		// Paints lines to show all connectections between neighbors
-		painters.addAll(getNeighborPainters());
+//		defaultPainters.addAll(getNeighborPainters());
 		
 		// Create a waypoint painter that takes all the waypoints
 		
@@ -65,13 +70,94 @@ public class MapView extends JXMapViewer {
 			waypointPainter.setWaypoints(new HashSet<MapPoint>(map.toArrayList()));
 			waypointPainter.setRenderer(new SizedMapPointRenderer());
 
-			painters.add(waypointPainter);
+			defaultPainters.add(waypointPainter);
 		}
 
-		painters.addAll(getRoutePainters());
+		compPainter = new CompoundPainter<JXMapViewer>(defaultPainters);
+		this.setOverlayPainter(compPainter);
+	}
+	
+	public void addRoute(List<MapPoint> newRoute) {
+		if (newRoute == null) {
+			throw new IllegalArgumentException();
+		}
+		
+		if (map.getRoutes().isEmpty()) {
+			for (Painter<JXMapViewer> p : defaultPainters) {
+				if (p instanceof AbstractPainter<?>) {
+					((AbstractPainter<?>)p).setVisible(false);
+				}
+			}
+		}
+		
+		map.addRoute(newRoute);
+		fitScreenToRoute(map.getRoutes());
+		List<Painter<JXMapViewer>> painters = getRoutePainters(newRoute); 
+		for (Painter<JXMapViewer> p : painters) {
+			compPainter.addPainter(p);
+			routePainters.add(p);
+		}
+	}
+	
+	public void setRoute(List<MapPoint> newRoute) {		
+		List<List<MapPoint>> newRoutes = new ArrayList<List<MapPoint>>();
+		newRoutes.add(newRoute);
+		setRoutes(newRoutes);
+	}
+	
+	public void setRoutes(List<List<MapPoint>> newRoutes) {
+		if (map.getRoutes().isEmpty()) {
+			for (Painter<JXMapViewer> p : defaultPainters) {
+				if (p instanceof AbstractPainter<?>) {
+					((AbstractPainter<?>)p).setVisible(false);
+				}
+			}
+		} else {		
+			for (Painter<JXMapViewer> p : routePainters) {
+				compPainter.removePainter(p);
+			}
+			routePainters.clear();
+			map.clearRoutes();
+		}
+		
+		for (List<MapPoint> route : newRoutes) {
+			map.addRoute(route);
+			List<Painter<JXMapViewer>> painters = getRoutePainters(route); 
+			for (Painter<JXMapViewer> p : painters) {
+				compPainter.addPainter(p);
+				routePainters.add(p);
+			}
+		}
 
-		CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(painters);
-		this.setOverlayPainter(painter);
+		fitScreenToRoute(newRoutes);
+	}
+	
+	public void clearRoutes() {
+		if (!map.getRoutes().isEmpty()) {
+			for (Painter<JXMapViewer> p : defaultPainters) {
+				if (p instanceof AbstractPainter<?>) {
+					((AbstractPainter<?>)p).setVisible(true);
+				}
+			}
+		}
+		
+		map.clearRoutes();
+		
+		for (Painter<JXMapViewer> p : routePainters) {
+			compPainter.removePainter(p);
+		}
+		
+		routePainters.clear();
+	}
+
+	private void fitScreenToRoute(List<List<MapPoint>> routes) {
+		Set<GeoPosition> points = new HashSet<GeoPosition>();
+		for (List<MapPoint> route : routes) {
+			for (MapPoint p : route) {
+				points.add(p.getPosition());
+			}
+		}
+		this.zoomToBestFit(points, 0.8);
 	}
 
 	public void paintComponent(Graphics g) {
@@ -123,7 +209,7 @@ public class MapView extends JXMapViewer {
 				temp.add(p);
 				temp.add(n.point);
 				
-				double hue = (1.0-(Math.sqrt(((double)n.getCost()))/maxCost))*(1.0/2.0);
+				double hue = (1.0-(Math.sqrt(((double)n.getDistanceCost()))/maxCost))*(1.0/2.0);
 				
 				painterList.add(new RoutePainter(getGeoPosition(temp), new Color(Color.HSBtoRGB((float)hue, 1.0f, 1.0f))));
 			}
@@ -131,7 +217,7 @@ public class MapView extends JXMapViewer {
 		return painterList;
 	}
 
-	private List<Painter<JXMapViewer>> getRoutePainters() {
+	private List<Painter<JXMapViewer>> getRoutePainters(List<MapPoint> route) {
 		List<Painter<JXMapViewer>> painterList = new ArrayList<Painter<JXMapViewer>>();
 
 		Stack<Color> colors = new Stack<Color>();
@@ -151,15 +237,13 @@ public class MapView extends JXMapViewer {
 		routePointsPainter.setRenderer(new SimpleMapPointRenderer());
 		HashSet<MapPoint> routePoints = new HashSet<MapPoint>();
 
-		for (List<MapPoint> route : map.getRoutes()) {
-			route = new ArrayList<MapPoint>(route);
-			Color c = colors.pop();
-			painterList.add(new RoutePainter(getGeoPosition(route), new Color(c.getRed(), c.getGreen(), c.getBlue(), 200)));
+		route = new ArrayList<MapPoint>(route);
+		Color c = colors.pop();
+		painterList.add(new RoutePainter(getGeoPosition(route), new Color(c.getRed(), c.getGreen(), c.getBlue(), 200)));
 
-			routeEndPoints.add(route.remove(route.size()-1));
-			routeStartPoints.add(route.remove(0));
-			routePoints.addAll(route);
-		}
+		routeEndPoints.add(route.remove(route.size()-1));
+		routeStartPoints.add(route.remove(0));
+		routePoints.addAll(route);
 		
 		routeEndPainter.setWaypoints(routeEndPoints);
 		routeStartPainter.setWaypoints(routeStartPoints);
