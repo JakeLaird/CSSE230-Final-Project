@@ -255,6 +255,7 @@ public class MapGUI {
 		
 		mapPanel.setLayout(new GridLayout(1,1));
 		view = new MapView(this.map);
+		view.setZoom(14);
 		mapPanel.add(view);
 		
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,buttonPanel,mapPanel);
