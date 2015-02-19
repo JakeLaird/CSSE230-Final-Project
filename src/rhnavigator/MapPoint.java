@@ -244,6 +244,10 @@ public class MapPoint implements Waypoint {
 			return "<" + point.getName() + ", " + distanceCost + ", " + timeCost + ">";
 		}
 	}
+	
+	public boolean isLandmark() {
+		return false;
+	}
 
 	public String toString() {
 		// return "\n(" + name + ", " + neighbors.toString() + ")\n";

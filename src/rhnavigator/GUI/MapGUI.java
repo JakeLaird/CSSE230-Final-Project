@@ -3,7 +3,10 @@ package rhnavigator.GUI;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -26,7 +29,7 @@ public class MapGUI {
 	static JSplitPane splitPane;
 	static JPanel buttonPanel,mapPanel,homeScreen, settingsPanel;
 	static JButton search,attractions, goHome, settings,homeButton,route, findCityButton;
-	static JComboBox currentLocation,startLocation,endLocation;
+	static JComboBox<MapPoint> currentLocation,startLocation,endLocation;
 	static JCheckBox checkBox;
 	static String homeLocation,loc;
 	static MapView view;
@@ -99,9 +102,10 @@ public class MapGUI {
 		JLabel label2 = new JLabel("Start Location");
 		JLabel label3 = new JLabel("Final Location");
 		
-		currentLocation = new JComboBox(map.toArrayList().toArray());
-		startLocation = new JComboBox(map.toArrayList().toArray());
-		endLocation = new JComboBox(map.toArrayList().toArray());
+		List<MapPoint> pointList = map.getCities();
+		currentLocation = new JComboBox<MapPoint>(new DefaultComboBoxModel<MapPoint>(pointList.toArray(new MapPoint[pointList.size()])));
+		startLocation = new JComboBox<MapPoint>(new DefaultComboBoxModel<MapPoint>(pointList.toArray(new MapPoint[pointList.size()])));
+		endLocation = new JComboBox<MapPoint>(new DefaultComboBoxModel<MapPoint>(pointList.toArray(new MapPoint[pointList.size()])));
 		
 		currentLocation.setEditable(true);
 		startLocation.setEditable(true);
