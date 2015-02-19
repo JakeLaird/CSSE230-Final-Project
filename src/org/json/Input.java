@@ -81,10 +81,13 @@ public class Input {
 					double longitude = (double) arr.get(1);
 					String name = (String) arr.get(2);
 					List<NeighborConnection> list = new ArrayList<NeighborConnection>();
-					for (int i = 0; i < arrr.length(); i+=2) {
+					for (int i = 0; i < arrr.length(); i+=3) {
 						String neighborName = arrr.get(i).toString().substring(0, arrr.get(i).toString().length()).replaceAll("<|>","");
-						String cost = arrr.get(i+1).toString().substring(0, arrr.get(i+1).toString().length()).replaceAll("<|>","");
-						list.add(new NeighborConnection(neighborName, (int) Double.parseDouble(cost)));
+						String distanceCost = arrr.get(i+1).toString().substring(0, arrr.get(i+1).toString().length()).replaceAll("<|>","");
+						String timeCost = arrr.get(i+2).toString().substring(0, arrr.get(i+2).toString().length()).replaceAll("<|>","");
+						list.add(new NeighborConnection(neighborName,
+								(int) Double.parseDouble(distanceCost),
+								(int) Double.parseDouble(timeCost)));
 
 					}
 					List<NeighborConnection> neighbors = list;

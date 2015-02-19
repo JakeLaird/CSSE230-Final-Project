@@ -42,6 +42,7 @@ public class MapView extends JXMapViewer {
 	private Map map;
 	private CompoundPainter<JXMapViewer> compPainter;
 	private List<Painter<JXMapViewer>> defaultPainters;
+	private List<Painter<JXMapViewer>> routePainters;
 
 	public MapView(Map map) {
 		this.map = map;
@@ -54,6 +55,7 @@ public class MapView extends JXMapViewer {
 		this.setAddressLocation(rose);
 
 		defaultPainters = new ArrayList<Painter<JXMapViewer>>();
+		routePainters = new ArrayList<Painter<JXMapViewer>>();
 
 		// Paints lines to show all connectections between neighbors
 //		defaultPainters.addAll(getNeighborPainters());
@@ -93,9 +95,60 @@ public class MapView extends JXMapViewer {
 		List<Painter<JXMapViewer>> painters = getRoutePainters(newRoute); 
 		for (Painter<JXMapViewer> p : painters) {
 			compPainter.addPainter(p);
+			routePainters.add(p);
 		}
 	}
+	
+	public void setRoute(List<MapPoint> newRoute) {		
+		List<List<MapPoint>> newRoutes = new ArrayList<List<MapPoint>>();
+		newRoutes.add(newRoute);
+		setRoutes(newRoutes);
+	}
+	
+	public void setRoutes(List<List<MapPoint>> newRoutes) {
+		if (map.getRoutes().isEmpty()) {
+			for (Painter<JXMapViewer> p : defaultPainters) {
+				if (p instanceof AbstractPainter<?>) {
+					((AbstractPainter<?>)p).setVisible(false);
+				}
+			}
+		} else {		
+			for (Painter<JXMapViewer> p : routePainters) {
+				compPainter.removePainter(p);
+			}
+			routePainters.clear();
+			map.clearRoutes();
+		}
+		
+		for (List<MapPoint> route : newRoutes) {
+			map.addRoute(route);
+			List<Painter<JXMapViewer>> painters = getRoutePainters(route); 
+			for (Painter<JXMapViewer> p : painters) {
+				compPainter.addPainter(p);
+				routePainters.add(p);
+			}
+		}
 
+		fitScreenToRoute(newRoutes);
+	}
+	
+	public void clearRoutes() {
+		if (!map.getRoutes().isEmpty()) {
+			for (Painter<JXMapViewer> p : defaultPainters) {
+				if (p instanceof AbstractPainter<?>) {
+					((AbstractPainter<?>)p).setVisible(true);
+				}
+			}
+		}
+		
+		map.clearRoutes();
+		
+		for (Painter<JXMapViewer> p : routePainters) {
+			compPainter.removePainter(p);
+		}
+		
+		routePainters.clear();
+	}
 
 	private void fitScreenToRoute(List<List<MapPoint>> routes) {
 		Set<GeoPosition> points = new HashSet<GeoPosition>();
@@ -156,7 +209,7 @@ public class MapView extends JXMapViewer {
 				temp.add(p);
 				temp.add(n.point);
 				
-				double hue = (1.0-(Math.sqrt(((double)n.getCost()))/maxCost))*(1.0/2.0);
+				double hue = (1.0-(Math.sqrt(((double)n.getDistanceCost()))/maxCost))*(1.0/2.0);
 				
 				painterList.add(new RoutePainter(getGeoPosition(temp), new Color(Color.HSBtoRGB((float)hue, 1.0f, 1.0f))));
 			}

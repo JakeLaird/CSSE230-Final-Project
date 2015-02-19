@@ -118,7 +118,8 @@ public class MapGUI {
 			public void actionPerformed(ActionEvent e){
 				start = map.findByName(startLocation.getSelectedItem().toString());
 				end = map.findByName(endLocation.getSelectedItem().toString());
-				view.addRoute(start.getShortestDistancePath(end));
+				view.setRoute(start.getShortestDistancePath(end));
+				view.addRoute(start.getShortestTimePath(end));
 			}
 		};
 		route.addActionListener(routeListener);

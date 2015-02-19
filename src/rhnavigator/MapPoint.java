@@ -26,11 +26,15 @@ import rhnavigator.costfunctions.*;
  */
 
 public class MapPoint implements Waypoint {
-	public double latitude, longitude, cost;
+	public double latitude, longitude;
 	private int interestLevel;
 	private String name;
 	public Map<MapPoint, NeighboringPoint> neighbors;
 	private CostFunction costEstimate;
+	
+	private enum PathType {
+		TIME, DISTANCE
+	}
 
 	public MapPoint(double latitude, double longitude, String name, int interestLevel) {
 		neighbors = new Hashtable<MapPoint, NeighboringPoint>();
@@ -83,19 +87,19 @@ public class MapPoint implements Waypoint {
 
 	public List<MapPoint> getShortestDistancePath(MapPoint goal) {
 		this.costEstimate = new DistanceCostFunction();
-		return findShortestPath(goal);
+		return findShortestPath(goal, PathType.DISTANCE);
 	}
 
 	public List<MapPoint> getShortestTimePath(MapPoint goal) {
-		// this.costEstimate=new TimeCostFunction();
-		return findShortestPath(goal);
+		this.costEstimate=new TimeCostFunction();
+		return findShortestPath(goal, PathType.TIME);
 	}
 
 	public GeoPosition getPosition() {
 		return new GeoPosition(latitude, longitude);
 	}
 	
-	public List<MapPoint> findShortestPath(MapPoint goal) {
+	public List<MapPoint> findShortestPath(MapPoint goal, PathType type) {
 		Queue<PathNode> openNodes = new PriorityQueue<PathNode>();
 		Map<String,PathNode> closedNodes = new HashMap<String,PathNode>();
 
@@ -112,7 +116,12 @@ public class MapPoint implements Waypoint {
 
 			List<NeighboringPoint> neighbors = current.point.getNeighborsWithCosts();
 			for (NeighboringPoint n : neighbors) {
-				int cost = current.currentCost + n.getCost();
+				int cost = current.currentCost;
+				if (type == PathType.DISTANCE) {
+					cost += n.getDistanceCost();
+				} else {
+					cost += n.getTimeCost();
+				}
 
 				// Check if already in the open set
 				boolean nodeInOpenSet = false;
@@ -128,8 +137,6 @@ public class MapPoint implements Waypoint {
 						break;
 					}
 				}
-
-				// TODO: revisiting closed nodes
 				
 				// Inadmissable heuristic, revisit
 				PathNode closedNeighbor = closedNodes.get(n.point.getName());
@@ -152,8 +159,6 @@ public class MapPoint implements Waypoint {
 
 	private boolean setContains(Set<PathNode> set, MapPoint p) {
 		PathNode tempNode = new PathNode(0, 0, null, p);
-		System.out.println("Check: " + p.toString());
-		System.out.println("In: " + set.toString());
 		boolean temp = set.contains(tempNode);
 		return temp;
 	}
@@ -212,41 +217,31 @@ public class MapPoint implements Waypoint {
 
 	}
 
-	public class NeighboringPoint implements Comparable<NeighboringPoint> { 
+	public class NeighboringPoint { 
 		public MapPoint point;
-		private int cost;
-
+		private int distanceCost;
+		private int timeCost;
 
 		public NeighboringPoint(MapPoint point) {
 			this.point = point;
-			CostFunction func = new DistanceCostFunction();
-			UpdateCost(func);
-		}
-
-		public NeighboringPoint(MapPoint point, CostFunction func) {
-			this.point = point;
-			UpdateCost(func);
 		}
 		
-		public NeighboringPoint(MapPoint point, int cost) {
+		public NeighboringPoint(MapPoint point, int distanceCost, int timeCost) {
 			this.point = point;
-			this.cost = cost;
+			this.distanceCost = distanceCost;
+			this.timeCost = timeCost;
 		}
 		
-		public int getCost() {
-			return cost;
-		}
+		public int getDistanceCost() {
+			return distanceCost;
+		}		
 
-		public void UpdateCost(CostFunction func) {
-			cost = func.calculate(MapPoint.this, point);
-		}
-
-		public int compareTo(NeighboringPoint neighbor) {
-			return this.cost - neighbor.cost;
+		public int getTimeCost() {
+			return timeCost;
 		}
 
 		public String toString() {
-			return "<" + point.getName() + ", " + cost + ">";
+			return "<" + point.getName() + ", " + distanceCost + ", " + timeCost + ">";
 		}
 	}
 
@@ -255,8 +250,8 @@ public class MapPoint implements Waypoint {
 		return name;
 	}
 
-	public void addNeighbor(MapPoint neighbor, int cost) {
-		NeighboringPoint neighboringPoint = new NeighboringPoint(neighbor, cost);
+	public void addNeighbor(MapPoint neighbor, int distanceCost, int timeCost) {
+		NeighboringPoint neighboringPoint = new NeighboringPoint(neighbor, distanceCost, timeCost);
 		neighbors.put(neighbor, neighboringPoint);
 	}
 }

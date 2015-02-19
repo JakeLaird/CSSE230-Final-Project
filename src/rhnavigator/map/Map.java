@@ -135,9 +135,10 @@ public class Map {
 				if (point.getNeighbors().contains(neighbor)) {
 					continue;
 				}
-				int cost = p.getNeighborConnection().getCost();
-				point.addNeighbor(neighbor, cost);
-				neighbor.addNeighbor(point, cost);
+				int distanceCost = p.getNeighborConnection().getDistanceCost();
+				int timeCost = p.getNeighborConnection().getTimeCost();
+				point.addNeighbor(neighbor, distanceCost, timeCost);
+				neighbor.addNeighbor(point, distanceCost, timeCost);
 			}
 		}
 		pendingConnections.clear();
@@ -163,6 +164,10 @@ public class Map {
 			returnRoutes.add(Collections.unmodifiableList(route));
 		}
 		return Collections.unmodifiableList(returnRoutes);
+	}
+	
+	public void clearRoutes() {
+		currentRoutes.clear();
 	}
 
 	/**
@@ -221,10 +226,12 @@ public class Map {
 	
 	public static class NeighborConnection {
 		private String neighbor;
-		private int cost;
+		private int distanceCost;
+		private int timeCost;
 		
-		public NeighborConnection(String neighbor, int cost) {
-			this.cost = cost;
+		public NeighborConnection(String neighbor, int distanceCost, int timeCost) {
+			this.distanceCost = distanceCost;
+			this.timeCost = timeCost;
 			this.neighbor = neighbor;
 		}
 		
@@ -232,8 +239,12 @@ public class Map {
 			return neighbor;
 		}
 		
-		public int getCost() {
-			return cost;
+		public int getDistanceCost() {
+			return distanceCost;
+		}
+		
+		public int getTimeCost() {
+			return timeCost;
 		}
 		
 		public boolean equals(NeighborConnection n) {
@@ -255,7 +266,7 @@ public class Map {
 		}
 		public PendingConnection(MapPoint newPoint, String neighbor) {
 			this.point = newPoint;
-			this.neighbor = new NeighborConnection(neighbor, 0);
+			this.neighbor = new NeighborConnection(neighbor, 0, 0);
 		}
 		public MapPoint getPoint() {
 			return point;
