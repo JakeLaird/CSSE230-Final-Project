@@ -2,6 +2,7 @@ package rhnavigator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -96,7 +97,7 @@ public class MapPoint implements Waypoint {
 	
 	public List<MapPoint> findShortestPath(MapPoint goal) {
 		Queue<PathNode> openNodes = new PriorityQueue<PathNode>();
-		Set<PathNode> closedNodes = new HashSet<PathNode>();
+		Map<String,PathNode> closedNodes = new HashMap<String,PathNode>();
 
 		int tempHeuristicCost = costEstimate.calculate(this, goal);
 		openNodes.add(new PathNode(0, tempHeuristicCost, null, this));
@@ -107,7 +108,7 @@ public class MapPoint implements Waypoint {
 			if (current.point.name.equals(goal.name)) {
 				return current.getPath(); // To list
 			}
-			closedNodes.add(current);
+			closedNodes.put(current.point.getName(), current);
 
 			List<NeighboringPoint> neighbors = current.point.getNeighborsWithCosts();
 			for (NeighboringPoint n : neighbors) {
@@ -121,17 +122,25 @@ public class MapPoint implements Waypoint {
 					if (openNode.point.equals(n.point)) {
 						if (cost < openNode.currentCost) {
 							openIterator.remove();
+						} else {
+							nodeInOpenSet = true;
 						}
-						nodeInOpenSet = true;
 						break;
 					}
 				}
 
-				// TODO: inadmissable heuristic
 				// TODO: revisiting closed nodes
-				 
-				// Add to open set
-				if (!nodeInOpenSet && !setContains(closedNodes, n.point)) {
+				
+				// Inadmissable heuristic, revisit
+				PathNode closedNeighbor = closedNodes.get(n.point.getName());
+				if (closedNeighbor != null) {
+					if (cost < closedNeighbor.currentCost) {
+						closedNodes.remove(n.point.getName());
+						closedNeighbor = null;
+					}
+				}
+				// Not in open or closed, add to open set
+				if (!nodeInOpenSet && closedNeighbor == null) {
 					int newHeuristicCost = costEstimate.calculate(n.point, goal);
 					PathNode newNode = new PathNode(cost, newHeuristicCost, current, n.point);
 					openNodes.add(newNode);
@@ -143,8 +152,8 @@ public class MapPoint implements Waypoint {
 
 	private boolean setContains(Set<PathNode> set, MapPoint p) {
 		PathNode tempNode = new PathNode(0, 0, null, p);
-//		System.out.println("Check: " + p.toString());
-//		System.out.println("In: " + set.toString());
+		System.out.println("Check: " + p.toString());
+		System.out.println("In: " + set.toString());
 		boolean temp = set.contains(tempNode);
 		return temp;
 	}

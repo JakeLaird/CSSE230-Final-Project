@@ -26,8 +26,6 @@ public class Map {
 	private KDTree kdMapPoints;
 	private List<List<MapPoint>> currentRoutes;
 	private Set<PendingConnection> pendingConnections;
-	
-	private static int zz = 0;
 
 	/**
 	 * Creates an empty Map.
@@ -73,7 +71,6 @@ public class Map {
 					// Link them together
 					newPoint.addNeighbor(neighborMapPoint);
 					neighborMapPoint.addNeighbor(newPoint);
-					zz+=1;
 				} else {
 					PendingConnection newPending = new PendingConnection(newPoint, neighbor);
 					pendingConnections.add(newPending);
@@ -141,7 +138,6 @@ public class Map {
 				int cost = p.getNeighborConnection().getCost();
 				point.addNeighbor(neighbor, cost);
 				neighbor.addNeighbor(point, cost);
-				zz+=1;
 			}
 		}
 		pendingConnections.clear();
