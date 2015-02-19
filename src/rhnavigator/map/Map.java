@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import net.sf.javaml.core.kdtree.KDTree;
 import rhnavigator.MapPoint;
+import rhnavigator.MapPoint.NeighboringPoint;
 
 
 /**
@@ -24,7 +25,9 @@ public class Map {
 	private TreeMap<String, MapPoint> mapPoints;
 	private KDTree kdMapPoints;
 	private List<List<MapPoint>> currentRoutes;
-	private List<PendingConnection> pendingConnections;
+	private Set<PendingConnection> pendingConnections;
+	
+	private static int zz = 0;
 
 	/**
 	 * Creates an empty Map.
@@ -33,7 +36,7 @@ public class Map {
 		mapPoints = new TreeMap<String, MapPoint>();
 		kdMapPoints = new KDTree(2); // 2 dimensions for our application
 		currentRoutes = new ArrayList<List<MapPoint>>();
-		pendingConnections = new ArrayList<PendingConnection>();
+		pendingConnections = new HashSet<PendingConnection>();
 	}
 
 	/**
@@ -70,6 +73,7 @@ public class Map {
 					// Link them together
 					newPoint.addNeighbor(neighborMapPoint);
 					neighborMapPoint.addNeighbor(newPoint);
+					zz+=1;
 				} else {
 					PendingConnection newPending = new PendingConnection(newPoint, neighbor);
 					pendingConnections.add(newPending);
@@ -131,9 +135,13 @@ public class Map {
 			MapPoint neighbor = mapPoints.get(p.getNeighborConnection().getNeighbor());
 			if (neighbor != null) {
 				MapPoint point = p.getPoint();
+				if (point.getNeighbors().contains(neighbor)) {
+					continue;
+				}
 				int cost = p.getNeighborConnection().getCost();
 				point.addNeighbor(neighbor, cost);
 				neighbor.addNeighbor(point, cost);
+				zz+=1;
 			}
 		}
 		pendingConnections.clear();
@@ -231,6 +239,14 @@ public class Map {
 		public int getCost() {
 			return cost;
 		}
+		
+		public boolean equals(NeighborConnection n) {
+			return n.getNeighbor().equals(neighbor);
+		}
+		
+		public String toString() {
+			return neighbor;
+		}
 	}
 	
 	private class PendingConnection {
@@ -250,6 +266,13 @@ public class Map {
 		}
 		public NeighborConnection getNeighborConnection() {
 			return neighbor;
+		}
+		public boolean equals(Object o) {
+			if (!(o instanceof PendingConnection)) {
+				return false;
+			}
+			PendingConnection c = (PendingConnection)o;
+			return c.getPoint().equals(point) && c.getNeighborConnection().equals(neighbor);
 		}
 	}
 

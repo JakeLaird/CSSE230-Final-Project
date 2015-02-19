@@ -68,6 +68,7 @@ public class Input {
 
 			FileReader fr = new FileReader(text);
 			BufferedReader br = new BufferedReader(fr);
+			int zz = 0;
 			while (true) {
 				String temp = br.readLine();
 

@@ -60,7 +60,7 @@ public class MapView extends JXMapViewer {
 		List<Painter<JXMapViewer>> painters = new ArrayList<Painter<JXMapViewer>>();
 
 		// Paints lines to show all connectections between neighbors
-		painters.addAll(getNeighborPainters());
+//		painters.addAll(getNeighborPainters());
 		
 		// Create a waypoint painter that takes all the waypoints
 		

@@ -239,9 +239,9 @@ public static void main(String[] args) {
 	secondmap.addRoute(start.getShortestDistancePath(end));
 	
 
-	start = secondmap.findByName("Terre Haute_IN");
-	end = secondmap.findByName("New York City_NY");
-	secondmap.addRoute(start.getShortestDistancePath(end));
+//	start = secondmap.findByName("Terre Haute_IN");
+//	end = secondmap.findByName("New York City_NY");
+//	secondmap.addRoute(start.getShortestDistancePath(end));
 	// secondmap.addRoute(r);
 	
 	MapGUI map = new MapGUI(secondmap);
