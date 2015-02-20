@@ -30,9 +30,9 @@ public class MapGUI {
 	static JSplitPane splitPane;
 	static JPanel buttonPanel,mapPanel,homeScreen, settingsPanel;
 	static JButton search,attractions, goHome, settings,homeButton,route, findCityButton;
-	static JComboBox<MapPoint> searchLocation,startLocation,endLocation;
+	static JComboBox<MapPoint> searchLocation,startLocation,endLocation, nearbyAttractions;
 	static JComboBox<String> routeChoice;
-	static JCheckBox checkBox;
+//	static JCheckBox checkBox;
 	static String loc;
 	static MapView view;
 	static MapPoint start,end,currentLocation,homeLocation;
@@ -54,7 +54,6 @@ public class MapGUI {
 		frame.add(homeScreen);
 		
 		instantiateButtons(); // All the button instantiation code here	
-//		currentLocation = new MapPoint();
 		
 		homeScreen.add(search);
 		homeScreen.add(attractions);
@@ -76,9 +75,6 @@ public class MapGUI {
 	private void mainMenu(){
 		homeScreen.setVisible(true);
 		frame.setSize(HOME_WIDTH,HOME_HEIGHT);
-		GridLayout buttonLayout = new GridLayout(10,1);
-		
-		
 	}
 	private void settingsPanel(){
 		buttonPanel = null;
@@ -150,7 +146,7 @@ public class MapGUI {
 			        "Error",
 			        JOptionPane.QUESTION_MESSAGE, 
 			        null, 
-			      this.pointList.toArray(new MapPoint[pointList.size()]), 
+			      pointList.toArray(new MapPoint[pointList.size()]), 
 			        pointList.get(0));
 			if(currentLocation!=null)attractionsPanel();
 		}
@@ -160,22 +156,23 @@ public class MapGUI {
 		view.setZoom(8);
 		view.setAddressLocation(new GeoPosition(currentLocation.latitude,currentLocation.longitude));
 		JLabel attractionsLabel = new JLabel("Nearby Attractions:");
-		List<MapLandmark> attractionList = map.getNearest(currentLocation, 10);
-		JComboBox nearAttractions = new JComboBox(attractionList.toArray(new MapPoint[attractionList.size()]));
+		List<MapLandmark> attractionList = map.getNearest(currentLocation, 25);
+		nearbyAttractions = new JComboBox<MapPoint>(attractionList.toArray(new MapPoint[attractionList.size()]));
 		
-		final JButton inputButton = new JButton("Search!");
+		final JButton nearAttractionButton = new JButton("Go to Attraction!");
 		ActionListener inputListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
+				MapPoint point = (MapPoint)nearbyAttractions.getSelectedItem();
+				view.setAddressLocation(new GeoPosition(point.latitude,point.longitude));
+				view.setZoom(4);
 				// do stuff
 			}
 		};
-		inputButton.addActionListener(inputListener);
-		
-//		nearAttractions.
-		
+		nearAttractionButton.addActionListener(inputListener);
+	
 		buttonPanel.add(attractionsLabel);
-		buttonPanel.add(nearAttractions);
-		buttonPanel.add(inputButton);
+		buttonPanel.add(nearbyAttractions);
+		buttonPanel.add(nearAttractionButton);
 		}
 		
 	}
@@ -200,7 +197,7 @@ public class MapGUI {
 		};
 		search.addActionListener(searchListener);
 		
-		attractions = new JButton("Attractions");
+		attractions = new JButton("Nearby Attractions");
 		ActionListener attractionListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
 //				mapPanel();
