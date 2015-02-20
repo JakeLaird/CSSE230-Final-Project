@@ -8,13 +8,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.sun.org.apache.bcel.internal.generic.LAND;
-
 import net.sf.javaml.core.kdtree.KDTree;
 import rhnavigator.MapLandmark;
 import rhnavigator.MapPoint;
-import rhnavigator.MapPoint.NeighboringPoint;
-
 
 /**
  * Stores the all of the MapPoints in the currently loaded map
@@ -44,6 +40,27 @@ public class Map {
 		cityPoints = new ArrayList<MapPoint>();
 	}
 
+	public List<MapPoint> TripPlan(double pla, double plo, double mile) {
+		List<MapPoint> alist = new ArrayList<MapPoint>();
+		double degree=mile/69;
+		for (String key : mapPoints.keySet()) {
+			double la = mapPoints.get(key).latitude;
+			double lo = mapPoints.get(key).longitude;
+			if (la - pla!=0&&lo - plo!=0) {
+				if (Math.abs(la - pla) * Math.abs(la - pla)
+						+ Math.abs(lo - plo)
+						* Math.abs(lo - plo) < degree * degree) {
+					alist.add(mapPoints.get(key));
+				}
+			}
+		}
+		return alist;
+	}
+	
+	public List<MapPoint> TripPlan(){
+		return new ArrayList<MapPoint>();
+	}
+
 	/**
 	 * Creates and inserts a new MapPoint into the Map.
 	 * 
@@ -59,17 +76,19 @@ public class Map {
 	 *            interest level of the new MapPoint
 	 * @return true if the map was changed
 	 */
-	public MapPoint addPointWithCost(double latitude, double longitude, String name,
-			List<NeighborConnection> neighbors, int interestLevel) {
+	public MapPoint addPointWithCost(double latitude, double longitude,
+			String name, List<NeighborConnection> neighbors, int interestLevel) {
 		MapPoint newPoint;
 		if (mapPoints.containsKey(name)) {
 			newPoint = mapPoints.get(name);
 		} else {
 			if (name.contains("_")) {
-				newPoint = new MapPoint(latitude, longitude, name, interestLevel);
+				newPoint = new MapPoint(latitude, longitude, name,
+						interestLevel);
 				cityPoints.add(newPoint);
 			} else {
-				MapLandmark newLandmark = new MapLandmark(latitude, longitude, name, interestLevel);
+				MapLandmark newLandmark = new MapLandmark(latitude, longitude,
+						name, interestLevel);
 				landmarkPoints.add(newLandmark);
 				newPoint = newLandmark;
 			}
@@ -80,20 +99,22 @@ public class Map {
 		if (neighbors != null) {
 			// Iterate over all the new neighbors to add
 			for (NeighborConnection neighbor : neighbors) {
-				MapPoint neighborMapPoint = mapPoints.get(neighbor.getNeighbor());
+				MapPoint neighborMapPoint = mapPoints.get(neighbor
+						.getNeighbor());
 				if (neighborMapPoint != null) {
 					// Link them together
 					newPoint.addNeighbor(neighborMapPoint);
 					neighborMapPoint.addNeighbor(newPoint);
 				} else {
-					PendingConnection newPending = new PendingConnection(newPoint, neighbor);
+					PendingConnection newPending = new PendingConnection(
+							newPoint, neighbor);
 					pendingConnections.add(newPending);
 				}
 			}
 		}
 		return newPoint;
 	}
-	
+
 	/**
 	 * Creates and inserts a new MapPoint into the Map.
 	 * 
@@ -129,21 +150,23 @@ public class Map {
 					newPoint.addNeighbor(neighborMapPoint);
 					neighborMapPoint.addNeighbor(newPoint);
 				} else {
-					PendingConnection newPending = new PendingConnection(newPoint, neighbor);
+					PendingConnection newPending = new PendingConnection(
+							newPoint, neighbor);
 					pendingConnections.add(newPending);
 				}
 			}
 		}
 		return newPoint;
 	}
-	
+
 	public boolean processPending() {
 		if (pendingConnections.isEmpty()) {
 			return false;
 		}
-		
+
 		for (PendingConnection p : pendingConnections) {
-			MapPoint neighbor = mapPoints.get(p.getNeighborConnection().getNeighbor());
+			MapPoint neighbor = mapPoints.get(p.getNeighborConnection()
+					.getNeighbor());
 			if (neighbor != null) {
 				MapPoint point = p.getPoint();
 				if (point.getNeighbors().contains(neighbor)) {
@@ -156,10 +179,10 @@ public class Map {
 			}
 		}
 		pendingConnections.clear();
-		
+
 		return true;
 	}
-	
+
 	public boolean hasPendingConnections() {
 		return !pendingConnections.isEmpty();
 	}
@@ -179,7 +202,7 @@ public class Map {
 		}
 		return Collections.unmodifiableList(returnRoutes);
 	}
-	
+
 	public void clearRoutes() {
 		currentRoutes.clear();
 	}
@@ -235,11 +258,11 @@ public class Map {
 	public ArrayList<MapPoint> toArrayList() {
 		return new ArrayList<MapPoint>(mapPoints.values());
 	}
-	
+
 	public List<MapPoint> getCities() {
 		return Collections.unmodifiableList(cityPoints);
 	}
-	
+
 	public List<MapLandmark> getLandmarks() {
 		return Collections.unmodifiableList(landmarkPoints);
 	}
@@ -248,76 +271,83 @@ public class Map {
 		return mapPoints.toString();
 	}
 
-	public String getstring(){
-		String result="";
-		for(String key:mapPoints.keySet()){
-			double la=mapPoints.get(key).latitude;
-			double lo=mapPoints.get(key).longitude;
-			String name=mapPoints.get(key).getName();
-			String nei=mapPoints.get(key).neighbors.toString();
-			int in=0;
-			String temp="["+la+","+lo+","+name+","+nei+","+in+"]\n";
-			result+=temp;
+	public String getstring() {
+		String result = "";
+		for (String key : mapPoints.keySet()) {
+			double la = mapPoints.get(key).latitude;
+			double lo = mapPoints.get(key).longitude;
+			String name = mapPoints.get(key).getName();
+			String nei = mapPoints.get(key).neighbors.toString();
+			int in = 0;
+			String temp = "[" + la + "," + lo + "," + name + "," + nei + ","
+					+ in + "]\n";
+			result += temp;
 		}
 		return result;
 	}
-	
+
 	public static class NeighborConnection {
 		private String neighbor;
 		private int distanceCost;
 		private int timeCost;
-		
-		public NeighborConnection(String neighbor, int distanceCost, int timeCost) {
+
+		public NeighborConnection(String neighbor, int distanceCost,
+				int timeCost) {
 			this.distanceCost = distanceCost;
 			this.timeCost = timeCost;
 			this.neighbor = neighbor;
 		}
-		
+
 		public String getNeighbor() {
 			return neighbor;
 		}
-		
+
 		public int getDistanceCost() {
 			return distanceCost;
 		}
-		
+
 		public int getTimeCost() {
 			return timeCost;
 		}
-		
+
 		public boolean equals(NeighborConnection n) {
 			return n.getNeighbor().equals(neighbor);
 		}
-		
+
 		public String toString() {
 			return neighbor;
 		}
 	}
-	
+
 	private class PendingConnection {
 		private MapPoint point;
 		private NeighborConnection neighbor;
-		
+
 		public PendingConnection(MapPoint newPoint, NeighborConnection neighbor) {
 			this.point = newPoint;
 			this.neighbor = neighbor;
 		}
+
 		public PendingConnection(MapPoint newPoint, String neighbor) {
 			this.point = newPoint;
 			this.neighbor = new NeighborConnection(neighbor, 0, 0);
 		}
+
 		public MapPoint getPoint() {
 			return point;
 		}
+
 		public NeighborConnection getNeighborConnection() {
 			return neighbor;
 		}
+
 		public boolean equals(Object o) {
 			if (!(o instanceof PendingConnection)) {
 				return false;
 			}
-			PendingConnection c = (PendingConnection)o;
-			return c.getPoint().equals(point) && c.getNeighborConnection().equals(neighbor);
+			PendingConnection c = (PendingConnection) o;
+			return c.getPoint().equals(point)
+					&& c.getNeighborConnection().equals(neighbor);
 		}
 	}
 
