@@ -25,7 +25,7 @@ import rhnavigator.costfunctions.*;
  *
  */
 
-public class MapPoint implements Waypoint {
+public class MapPoint implements Waypoint, Comparable<MapPoint> {
 	public double latitude, longitude;
 	private int interestLevel;
 	private String name;
@@ -257,5 +257,10 @@ public class MapPoint implements Waypoint {
 	public void addNeighbor(MapPoint neighbor, int distanceCost, int timeCost) {
 		NeighboringPoint neighboringPoint = new NeighboringPoint(neighbor, distanceCost, timeCost);
 		neighbors.put(neighbor, neighboringPoint);
+	}
+
+	@Override
+	public int compareTo(MapPoint o) {
+		return this.interestLevel - o.interestLevel;
 	}
 }

@@ -1,8 +1,12 @@
 package rhnavigator.GUI;
 
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -12,8 +16,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.json.Input;
@@ -31,7 +40,7 @@ public class MapGUI {
 	static JSplitPane splitPane;
 	static JPanel buttonPanel, mapPanel, homeScreen, settingsPanel;
 	static JButton search, attractions, tripPlanner, settings, homeButton,
-			route, findCityButton, trip_plan;
+			route, clear_route, findCityButton, trip_plan;
 	static JComboBox<MapPoint> searchLocation, startLocation, endLocation,
 			nearbyAttractions, trip_location;
 	static JComboBox<String> routeChoice;
@@ -44,6 +53,10 @@ public class MapGUI {
 	final static int MAP_HEIGHT = 500;
 	final static int FRAME_WIDTH = 1000;
 	final static int FRAME_HEIGHT = 500;
+	
+	final static int MAP_FRAME_WIDTH = 1100;
+	final static int MAP_FRAME_HEIGHT = 600;
+	private static final String SpringUtilities = null;
 
 	final int HOME_WIDTH = 500;
 	final int HOME_HEIGHT = HOME_WIDTH;
@@ -100,14 +113,37 @@ public class MapGUI {
 	}
 
 	private void searchPanel() {
-		buttonPanel.setLayout(new GridLayout(10, 1));
-
+		SpringLayout layout = new SpringLayout();
+		buttonPanel.setLayout(layout);
+		
 		// JPanel panel1 = new JPanel();
 		// panel1.setLayout(new GridLayout(1,2));
 
 		JLabel label1 = new JLabel("Enter Location");
 		JLabel label2 = new JLabel("Start Location");
 		JLabel label3 = new JLabel("Final Location");
+		JLabel label4 = new JLabel("Prefer: ");
+		
+		List<MapPoint> cities = new ArrayList<MapPoint>(map.getCities());
+		Collections.sort(cities);
+		Collections.reverse(cities);
+		
+		Object[][] data = new Object[cities.size()][2];
+		
+		for (int i = 0; i < cities.size(); i++) {
+			MapPoint city = cities.get(i);
+			data[i][0] = city.getName();
+			data[i][1] = city.getInterestLevel();
+		}
+		
+		JTable cityTable = new JTable(data, new String[] {"City", "Interest"});
+		cityTable.getColumnModel().getColumn(0).setPreferredWidth(120);
+		cityTable.getColumnModel().getColumn(1).setPreferredWidth(30);
+		
+		JScrollPane cityScrollPane = new JScrollPane(cityTable);
+		
+		JSeparator searchSeparator = new JSeparator(SwingConstants.HORIZONTAL);
+		searchSeparator.setPreferredSize(new Dimension(200,3));
 
 		searchLocation = new JComboBox<MapPoint>(
 				new DefaultComboBoxModel<MapPoint>(
@@ -126,8 +162,11 @@ public class MapGUI {
 		AutoCompleteDecorator.decorate(searchLocation);
 		AutoCompleteDecorator.decorate(startLocation);
 		AutoCompleteDecorator.decorate(endLocation);
+		
+		frame.setSize(MAP_FRAME_WIDTH, MAP_FRAME_HEIGHT);
 
-		splitPane.setDividerLocation((FRAME_WIDTH / 4));
+		splitPane.setDividerLocation((MAP_FRAME_WIDTH / 4));
+		splitPane.setEnabled(false);
 
 		ActionListener routeListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -147,21 +186,76 @@ public class MapGUI {
 			}
 		};
 		route.addActionListener(routeListener);
+		
+		ActionListener clearRouteListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				view.clearRoutes();
+			}
+		};
+		clear_route.addActionListener(clearRouteListener);
+		
+		layout.putConstraint(SpringLayout.WEST, label1, 1, SpringLayout.WEST, buttonPanel);
+		layout.putConstraint(SpringLayout.NORTH, homeButton, 5, SpringLayout.NORTH, buttonPanel);
 
-		// panel1.add(searchLocation);
-		// panel1.add(findCityButton);
+		layout.putConstraint(SpringLayout.NORTH, label1, 5, SpringLayout.SOUTH, homeButton);
+		layout.putConstraint(SpringLayout.NORTH, searchLocation, 5, SpringLayout.SOUTH, label1);
+		layout.putConstraint(SpringLayout.EAST, searchLocation, -5, SpringLayout.EAST, buttonPanel);
+		layout.putConstraint(SpringLayout.WEST, searchLocation, 5, SpringLayout.WEST, buttonPanel);
+		
+		layout.putConstraint(SpringLayout.NORTH, findCityButton, 5, SpringLayout.SOUTH,	searchLocation);
+		layout.putConstraint(SpringLayout.WEST, findCityButton, 5, SpringLayout.WEST, buttonPanel);
+		
+		layout.putConstraint(SpringLayout.NORTH, searchSeparator, 5, SpringLayout.SOUTH, findCityButton);
+		layout.putConstraint(SpringLayout.EAST, searchSeparator, -10, SpringLayout.EAST, buttonPanel);
+		layout.putConstraint(SpringLayout.WEST, searchSeparator, 10, SpringLayout.WEST, buttonPanel);
+
+		layout.putConstraint(SpringLayout.NORTH, label2, 5, SpringLayout.SOUTH, searchSeparator);
+		layout.putConstraint(SpringLayout.WEST, label2, 1, SpringLayout.WEST, buttonPanel);
+		
+		layout.putConstraint(SpringLayout.NORTH, startLocation, 5, SpringLayout.SOUTH, label2);
+		layout.putConstraint(SpringLayout.EAST, startLocation, -5, SpringLayout.EAST, buttonPanel);
+		layout.putConstraint(SpringLayout.WEST, startLocation, 5, SpringLayout.WEST, buttonPanel);
+		
+		layout.putConstraint(SpringLayout.NORTH, label3, 5, SpringLayout.SOUTH, startLocation);
+		layout.putConstraint(SpringLayout.WEST, label3, 1, SpringLayout.WEST, buttonPanel);
+		
+		layout.putConstraint(SpringLayout.NORTH, endLocation, 5, SpringLayout.SOUTH, label3);
+		layout.putConstraint(SpringLayout.EAST, endLocation, -5, SpringLayout.EAST, buttonPanel);
+		layout.putConstraint(SpringLayout.WEST, endLocation, 5, SpringLayout.WEST, buttonPanel);
+		
+		layout.putConstraint(SpringLayout.NORTH, routeChoice, 5, SpringLayout.SOUTH, endLocation);
+		layout.putConstraint(SpringLayout.EAST, routeChoice, -5, SpringLayout.EAST, buttonPanel);
+		
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, label4, 0, SpringLayout.VERTICAL_CENTER, routeChoice);
+		layout.putConstraint(SpringLayout.WEST, label4, 5, SpringLayout.WEST, buttonPanel);
+		
+		layout.putConstraint(SpringLayout.NORTH, route, 10, SpringLayout.SOUTH, routeChoice);
+		layout.putConstraint(SpringLayout.WEST, route, 5, SpringLayout.WEST, buttonPanel);
+		layout.putConstraint(SpringLayout.EAST, route, -5, SpringLayout.HORIZONTAL_CENTER, buttonPanel);
+		
+		layout.putConstraint(SpringLayout.NORTH, clear_route, 10, SpringLayout.SOUTH, routeChoice);
+		layout.putConstraint(SpringLayout.EAST, clear_route, -5, SpringLayout.EAST, buttonPanel);
+		layout.putConstraint(SpringLayout.WEST, clear_route, 5, SpringLayout.HORIZONTAL_CENTER, buttonPanel);
+		
+		layout.putConstraint(SpringLayout.NORTH, cityScrollPane, 5, SpringLayout.SOUTH, clear_route);
+		layout.putConstraint(SpringLayout.EAST, cityScrollPane, -5, SpringLayout.EAST, buttonPanel);
+		layout.putConstraint(SpringLayout.WEST, cityScrollPane, 5, SpringLayout.WEST, buttonPanel);
+		layout.putConstraint(SpringLayout.SOUTH, cityScrollPane, -5, SpringLayout.SOUTH, buttonPanel);
 
 		buttonPanel.add(label1);
 		buttonPanel.add(searchLocation);
 		buttonPanel.add(findCityButton);
-		// buttonPanel.add(panel1);
+		buttonPanel.add(searchSeparator);
 
 		buttonPanel.add(label2);
 		buttonPanel.add(startLocation);
 		buttonPanel.add(label3);
 		buttonPanel.add(endLocation);
 		buttonPanel.add(routeChoice);
+		buttonPanel.add(label4);
 		buttonPanel.add(route);
+		buttonPanel.add(clear_route);
+		buttonPanel.add(cityScrollPane);
 	}
 	
 	private void attractionsPanel(){
@@ -281,6 +375,8 @@ public class MapGUI {
 		route = new JButton("Route!");
 		String[] choices = new String[] { "Shortest Distance", "Shortest Time" };
 		routeChoice = new JComboBox<String>(choices);
+		
+		clear_route = new JButton("Clear");
 
 	}
 

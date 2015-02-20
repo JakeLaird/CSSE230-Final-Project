@@ -63,16 +63,14 @@ public class MapView extends JXMapViewer {
 		routePainters = new ArrayList<Painter<JXMapViewer>>();
 
 		// Paints lines to show all connectections between neighbors
-		//defaultPainters.addAll(getNeighborPainters());
+		defaultPainters.addAll(getNeighborPainters());
 		
 		map.clearRoutes();
 		// By default, draw all places as waypoints.
 		WaypointPainter<MapPoint> waypointPainter = new WaypointPainter<MapPoint>();
 
 		waypointPainter.setWaypoints(new HashSet<MapPoint>(map.toArrayList()));
-		waypointPainter.setRenderer(new SizedMapPointRenderer());
-		
-		
+		waypointPainter.setRenderer(new SizedMapPointRenderer());		
 
 		defaultPainters.add(waypointPainter);
 
