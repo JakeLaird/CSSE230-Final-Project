@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -204,8 +205,12 @@ public class MapGUI {
 	}
 	
 	private void instantiateButtons(){
-
-		search = new JButton("Search");
+		search = new JButton();
+		search.setLayout(new GridLayout(1,1));
+		search.setIcon(new ImageIcon("/rhnavigator.GUI/searchIcon.png"));
+		search.repaint();
+//		search.setOpaque(false);
+//		search.setIcon(icon);
 		ActionListener searchListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
 				mapPanel();
