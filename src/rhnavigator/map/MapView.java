@@ -2,6 +2,8 @@ package rhnavigator.map;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,9 +23,11 @@ import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.LocalResponseCache;
 import org.jxmapviewer.viewer.TileFactoryInfo;
+import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointPainter;
 
 import rhnavigator.MapPoint;
@@ -43,6 +47,7 @@ public class MapView extends JXMapViewer {
 	private CompoundPainter<JXMapViewer> compPainter;
 	private List<Painter<JXMapViewer>> defaultPainters;
 	private List<Painter<JXMapViewer>> routePainters;
+	private WaypointPainter<Waypoint> pinPainter;
 
 	public MapView(Map map) {
 		this.map = map;
@@ -58,20 +63,16 @@ public class MapView extends JXMapViewer {
 		routePainters = new ArrayList<Painter<JXMapViewer>>();
 
 		// Paints lines to show all connectections between neighbors
-//		defaultPainters.addAll(getNeighborPainters());
+		//defaultPainters.addAll(getNeighborPainters());
 		
-		// Create a waypoint painter that takes all the waypoints
-		
+		map.clearRoutes();
+		// By default, draw all places as waypoints.
+		WaypointPainter<MapPoint> waypointPainter = new WaypointPainter<MapPoint>();
 
-		// If there are no routes, draw all places as waypoints.
-		if (map.getRoutes().isEmpty()) {
-			WaypointPainter<MapPoint> waypointPainter = new WaypointPainter<MapPoint>();
+		waypointPainter.setWaypoints(new HashSet<MapPoint>(map.toArrayList()));
+		waypointPainter.setRenderer(new SizedMapPointRenderer());
 
-			waypointPainter.setWaypoints(new HashSet<MapPoint>(map.toArrayList()));
-			waypointPainter.setRenderer(new SizedMapPointRenderer());
-
-			defaultPainters.add(waypointPainter);
-		}
+		defaultPainters.add(waypointPainter);
 
 		compPainter = new CompoundPainter<JXMapViewer>(defaultPainters);
 		this.setOverlayPainter(compPainter);
@@ -112,7 +113,7 @@ public class MapView extends JXMapViewer {
 					((AbstractPainter<?>)p).setVisible(false);
 				}
 			}
-		} else {		
+		} else {
 			for (Painter<JXMapViewer> p : routePainters) {
 				compPainter.removePainter(p);
 			}
@@ -158,6 +159,69 @@ public class MapView extends JXMapViewer {
 			}
 		}
 		this.zoomToBestFit(points, 0.8);
+	}
+	
+	public void fitScreenToRouteAndPoint(GeoPosition p) {
+		Set<GeoPosition> points = new HashSet<GeoPosition>();
+		points.add(p);
+		for (List<MapPoint> route : map.getRoutes()) {
+			for (MapPoint point : route) {
+				points.add(point.getPosition());
+			}
+		}
+		setAddressLocation(p);
+		
+		if (pinPainter != null) {
+			compPainter.removePainter(pinPainter);
+		}
+		
+		pinPainter = new WaypointPainter<Waypoint>();
+		pinPainter.setRenderer(new PinMapPointRenderer());
+		Set<Waypoint> centerPoints = new HashSet<Waypoint>();
+		centerPoints.add(new DefaultWaypoint(p));
+		pinPainter.setWaypoints(centerPoints);
+		compPainter.addPainter(pinPainter);
+		
+		if (map.getRoutes().isEmpty()) {
+			setZoom(6);
+			return;
+		}
+		
+		setZoom(1);
+		int zoom = getZoom();
+		Rectangle2D rect = generateBoundingRect(points, zoom);
+		// Rectangle2D viewport = map.getViewportBounds();
+		int count = 0;
+		while (!getViewportBounds().contains(rect)) {
+			count++;
+			if (count > 30) {
+				break;
+			}
+			if (getViewportBounds().contains(rect)) {
+				System.err.println("did it finally");
+				break;
+			}
+			zoom += 1;
+			
+			if (zoom > 20)
+			{
+				System.err.println("zoom failed");
+				break;
+			}
+			setZoom(zoom);
+			rect = generateBoundingRect(points, zoom);
+		}
+	}
+	
+	private Rectangle2D generateBoundingRect(final Set<GeoPosition> positions, int zoom)
+	{
+		Point2D point1 = getTileFactory().geoToPixel(positions.iterator().next(), zoom);
+		Rectangle2D rect = new Rectangle2D.Double(point1.getX(), point1.getY(), 0, 0);
+		for (GeoPosition pos : positions) {
+			Point2D point = getTileFactory().geoToPixel(pos, zoom);
+			rect.add(point);
+		}
+		return rect;
 	}
 
 	public void paintComponent(Graphics g) {
