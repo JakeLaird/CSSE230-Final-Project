@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -84,9 +83,7 @@ public class MapGUI {
 		
 		settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridLayout(1,2));
-		
-		JComboBox<MapPoint> inputBox = new JComboBox<MapPoint>();
-		
+				
 		buttonPanel.add(homeButton);
 		
 		settingsPanel.add(buttonPanel);	
@@ -98,6 +95,10 @@ public class MapGUI {
 
 	private void searchPanel(){
 		buttonPanel.setLayout(new GridLayout(10,1));
+		
+//		JPanel panel1 = new JPanel();
+//		panel1.setLayout(new GridLayout(1,2));
+		
 		JLabel label1 = new JLabel("Enter Location");
 		JLabel label2 = new JLabel("Start Location");
 		JLabel label3 = new JLabel("Final Location");
@@ -121,15 +122,23 @@ public class MapGUI {
 			public void actionPerformed(ActionEvent e){
 				start = map.findByName(startLocation.getSelectedItem().toString());
 				end = map.findByName(endLocation.getSelectedItem().toString());
+				if(start.equals(end)) JOptionPane.showMessageDialog( frame, "Cities are the same!");
+				
+					else{
 				if(routeChoice.getSelectedItem().toString() == "Shortest Distance")view.setRoute(start.getShortestDistancePath(end));
 				else view.setRoute(start.getShortestTimePath(end));
+				}
 			}
 		};
 		route.addActionListener(routeListener);
 		
+//		panel1.add(searchLocation);
+//		panel1.add(findCityButton);
+		
 		buttonPanel.add(label1);
 		buttonPanel.add(searchLocation);
 		buttonPanel.add(findCityButton);
+//		buttonPanel.add(panel1);
 
 		buttonPanel.add(label2);
 		buttonPanel.add(startLocation);
