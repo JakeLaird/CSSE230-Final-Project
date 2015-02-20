@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -61,9 +62,10 @@ public class MapGUI {
 	final int HOME_WIDTH = 500;
 	final int HOME_HEIGHT = HOME_WIDTH;
 	private Map map;
+	private boolean ischanged;
 
-	public MapGUI(){
-		GridLayout homeLayout = new GridLayout(2,2);
+	public MapGUI() {
+		GridLayout homeLayout = new GridLayout(2, 2);
 		frame = new JFrame();
 		homeScreen = new JPanel();
 		homeScreen.setLayout(homeLayout);
@@ -79,6 +81,7 @@ public class MapGUI {
 		frame.setSize(HOME_WIDTH, HOME_HEIGHT);
 		frame.setTitle("RHNavigators!");
 		frame.setVisible(true);
+		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 	}
@@ -257,61 +260,65 @@ public class MapGUI {
 		buttonPanel.add(clear_route);
 		buttonPanel.add(cityScrollPane);
 	}
-	
-	private void attractionsPanel(){
+
+	private void attractionsPanel() {
 		try {
 			currentLocation = CurrentLocation.getMapPoint(map);
 		} catch (Exception e) {
-			System.err.println("Unable to get current location.");			
+			System.err.println("Unable to get current location.");
 		}
-		
-		if(currentLocation == null){
-			currentLocation = (MapPoint) JOptionPane.showInputDialog(frame, 
-			        "Please input your current location",
-			        "Error",
-			        JOptionPane.QUESTION_MESSAGE, 
-			        null, 
-			      pointList.toArray(new MapPoint[pointList.size()]), 
-			        pointList.get(0));
-			if(currentLocation!=null)attractionsPanel();
+
+		if (currentLocation == null) {
+			currentLocation = (MapPoint) JOptionPane.showInputDialog(frame,
+					"Please input your current location", "Error",
+					JOptionPane.QUESTION_MESSAGE, null,
+					pointList.toArray(new MapPoint[pointList.size()]),
+					pointList.get(0));
+			if (currentLocation != null)
+				attractionsPanel();
 
 		} else {
-		if(currentLocation == null) return;	
-		mapPanel();
-		view.setZoom(8);
-		view.setAddressLocation(new GeoPosition(currentLocation.latitude,currentLocation.longitude));
-		JLabel attractionsLabel = new JLabel("Nearby Attractions:");
-		List<MapLandmark> attractionList = map.getNearest(currentLocation, 25);
-		nearbyAttractions = new JComboBox<MapPoint>(attractionList.toArray(new MapPoint[attractionList.size()]));
-		
-		final JButton nearAttractionButton = new JButton("Go to Attraction!");
-		ActionListener inputListener = new ActionListener() {
-			public void actionPerformed(ActionEvent e){
-				MapPoint point = (MapPoint)nearbyAttractions.getSelectedItem();
-				view.setAddressLocation(new GeoPosition(point.latitude,point.longitude));
-				view.setZoom(4);
-				// do stuff
-			}
-		};
-		nearAttractionButton.addActionListener(inputListener);
-	
-		buttonPanel.add(attractionsLabel);
-		buttonPanel.add(nearbyAttractions);
-		buttonPanel.add(nearAttractionButton);
+			if (currentLocation == null)
+				return;
+			mapPanel();
+			view.setZoom(8);
+			view.setAddressLocation(new GeoPosition(currentLocation.latitude,
+					currentLocation.longitude));
+			JLabel attractionsLabel = new JLabel("Nearby Attractions:");
+			List<MapLandmark> attractionList = map.getNearest(currentLocation,
+					25);
+			nearbyAttractions = new JComboBox<MapPoint>(
+					attractionList.toArray(new MapPoint[attractionList.size()]));
+
+			final JButton nearAttractionButton = new JButton(
+					"Go to Attraction!");
+			ActionListener inputListener = new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					MapPoint point = (MapPoint) nearbyAttractions
+							.getSelectedItem();
+					view.setAddressLocation(new GeoPosition(point.latitude,
+							point.longitude));
+					view.setZoom(4);
+					// do stuff
+				}
+			};
+			nearAttractionButton.addActionListener(inputListener);
+
+			buttonPanel.add(attractionsLabel);
+			buttonPanel.add(nearbyAttractions);
+			buttonPanel.add(nearAttractionButton);
 		}
 	}
-	
+
 	private void findOnMap(MapPoint location) {
 		view.fitScreenToRouteAndPoint(location.getPosition());
 	}
 	
 	private void instantiateButtons(){
-		search = new JButton("Search");
-//		search.setLayout(new GridLayout(1,1));
-//		search.setIcon(new ImageIcon("/rhnavigator.GUI/searchIcon.png"));
-//		search.repaint();
-//		search.setOpaque(false);
-//		search.setIcon(icon);
+		search = new JButton();
+		ImageIcon searchIcon = new ImageIcon(MapGUI.class.getResource("/images/searchIcon.png"));
+		search.setIcon(searchIcon);
+
 		ActionListener searchListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mapPanel();
@@ -330,8 +337,14 @@ public class MapGUI {
 			}
 		};
 		attractions.addActionListener(attractionListener);
+		
+		tripPlanner = new JButton();
+		ImageIcon tripIcon = new ImageIcon(MapGUI.class.getResource("/images/car.png"));
+		tripPlanner.setIcon(tripIcon);
 
 		tripPlanner = new JButton("Trip Planner");
+
+		
 		ActionListener homeListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mapPanel();
@@ -372,6 +385,9 @@ public class MapGUI {
 		};
 		findCityButton.addActionListener(findCityListener);
 
+		trip_plan = new JButton("route");
+		
+		
 		route = new JButton("Route!");
 		String[] choices = new String[] { "Shortest Distance", "Shortest Time" };
 		routeChoice = new JComboBox<String>(choices);
@@ -381,69 +397,102 @@ public class MapGUI {
 	}
 
 	protected void tripPlannerPanel() {
+		ischanged = false;
 		List<MapPoint> pointList = map.getCities();
 		startLocation = new JComboBox<MapPoint>(
 				new DefaultComboBoxModel<MapPoint>(
 						pointList.toArray(new MapPoint[pointList.size()])));
 		startLocation.setEditable(true);
 		AutoCompleteDecorator.decorate(startLocation);
-		
-		JLabel label1= new JLabel("Select a city");
-		JLabel label2=new JLabel("Miles:");
-		
-		final JSlider slider = new JSlider(JSlider.HORIZONTAL,
-                30, 100, 50);
+
+
+
+		JLabel label1 = new JLabel("Select a city");
+		JLabel label2 = new JLabel("Miles:");
+
+		final JSlider slider = new JSlider(JSlider.HORIZONTAL, 50, 200, 140);
+
+
 		slider.setMajorTickSpacing(10);
-		slider.setMinorTickSpacing(1);
 		slider.setPaintTicks(true);
 		slider.setPaintLabels(true);
-		
-		JButton get_desti=new JButton("Get destinations");
-		
-		
+
+		JButton get_desti = new JButton("Get destinations");
+
 		ActionListener getlistener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				start = map.findByName(startLocation.getSelectedItem()
-						.toString());
-				List<MapPoint> triplist = map.TripPlan(start.latitude,start.longitude,slider.getValue());
-				trip_location = new JComboBox<MapPoint>(
-						new DefaultComboBoxModel<MapPoint>(triplist
-								.toArray(new MapPoint[triplist.size()])));
-				trip_location.setEditable(true);
-				AutoCompleteDecorator.decorate(trip_location);
-				buttonPanel.add(trip_location);
-				trip_plan = new JButton("route");
-				buttonPanel.add(trip_plan);
-				System.out.println(">>");
+
+				if (!ischanged) {
+					start = map.findByName(startLocation.getSelectedItem()
+							.toString());
+					List<MapPoint> triplist = map.TripPlan(start.latitude,
+							start.longitude, slider.getValue());
+					if (triplist.size() == 0)
+						JOptionPane.showMessageDialog(frame,
+								"No destinations found. Enter a larger distance");
+
+					trip_location = new JComboBox<MapPoint>(
+							new DefaultComboBoxModel<MapPoint>(
+									triplist.toArray(new MapPoint[triplist
+											.size()])));
+					trip_location.setEditable(true);
+					AutoCompleteDecorator.decorate(trip_location);
+					buttonPanel.add(trip_location);
+					trip_plan = new JButton("route");
+					ActionListener sec_routeListener = new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							start = map.findByName(startLocation
+									.getSelectedItem().toString());
+							end = map.findByName(trip_location
+									.getSelectedItem().toString());
+							if (start.equals(end))
+								JOptionPane.showMessageDialog(frame,
+										"Cities are the same!");
+
+							else {
+								if (routeChoice.getSelectedItem().toString() == "Shortest Distance")
+									view.setRoute(start
+											.getShortestDistancePath(end));
+								else
+									view.setRoute(start
+											.getShortestTimePath(end));
+							}
+						}
+					};
+					trip_plan.addActionListener(sec_routeListener);
+					buttonPanel.add(trip_plan);
+					buttonPanel.setVisible(false);
+					buttonPanel.setVisible(true);
+					ischanged = true;
+				}
+
 			}
 		};
 		get_desti.addActionListener(getlistener);
-		
-//		trip_plan = new JButton("trip");
-//		List<MapPoint> triplist = map.TripPlan();
-//		trip_location = new JComboBox<MapPoint>(
-//				new DefaultComboBoxModel<MapPoint>(
-//						triplist.toArray(new MapPoint[triplist.size()])));
-//		
-//		ActionListener tripListener = new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				start = map.findByName(startLocation.getSelectedItem()
-//						.toString());
-//				
-//				end = map
-//						.findByName(trip_location.getSelectedItem().toString());
-//				view.setRoute(start.getShortestDistancePath(end));
-//				view.addRoute(start.getShortestTimePath(end));
-//			}
-//		};
+
+		// trip_plan = new JButton("trip");
+		// List<MapPoint> triplist = map.TripPlan();
+		// trip_location = new JComboBox<MapPoint>(
+		// new DefaultComboBoxModel<MapPoint>(
+		// triplist.toArray(new MapPoint[triplist.size()])));
+		//
+		// ActionListener tripListener = new ActionListener() {
+		// public void actionPerformed(ActionEvent e) {
+		// start = map.findByName(startLocation.getSelectedItem()
+		// .toString());
+		//
+		// end = map
+		// .findByName(trip_location.getSelectedItem().toString());
+		// view.setRoute(start.getShortestDistancePath(end));
+		// view.addRoute(start.getShortestTimePath(end));
+		// }
+		// };
 
 		buttonPanel.add(label1);
 		buttonPanel.add(startLocation);
 		buttonPanel.add(label2);
 		buttonPanel.add(slider);
 		buttonPanel.add(get_desti);
-
-
 
 	}
 
