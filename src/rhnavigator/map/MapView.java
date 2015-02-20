@@ -71,6 +71,8 @@ public class MapView extends JXMapViewer {
 
 		waypointPainter.setWaypoints(new HashSet<MapPoint>(map.toArrayList()));
 		waypointPainter.setRenderer(new SizedMapPointRenderer());
+		
+		
 
 		defaultPainters.add(waypointPainter);
 
