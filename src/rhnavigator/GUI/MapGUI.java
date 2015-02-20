@@ -205,10 +205,10 @@ public class MapGUI {
 	}
 	
 	private void instantiateButtons(){
-		search = new JButton();
-		search.setLayout(new GridLayout(1,1));
-		search.setIcon(new ImageIcon("/rhnavigator.GUI/searchIcon.png"));
-		search.repaint();
+		search = new JButton("Search");
+//		search.setLayout(new GridLayout(1,1));
+//		search.setIcon(new ImageIcon("/rhnavigator.GUI/searchIcon.png"));
+//		search.repaint();
 //		search.setOpaque(false);
 //		search.setIcon(icon);
 		ActionListener searchListener = new ActionListener() {
