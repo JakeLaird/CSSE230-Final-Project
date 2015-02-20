@@ -23,9 +23,11 @@ import org.jxmapviewer.painter.AbstractPainter;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.LocalResponseCache;
 import org.jxmapviewer.viewer.TileFactoryInfo;
+import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointPainter;
 
 import rhnavigator.MapPoint;
@@ -45,6 +47,7 @@ public class MapView extends JXMapViewer {
 	private CompoundPainter<JXMapViewer> compPainter;
 	private List<Painter<JXMapViewer>> defaultPainters;
 	private List<Painter<JXMapViewer>> routePainters;
+	private WaypointPainter<Waypoint> pinPainter;
 
 	public MapView(Map map) {
 		this.map = map;
@@ -68,6 +71,8 @@ public class MapView extends JXMapViewer {
 
 		waypointPainter.setWaypoints(new HashSet<MapPoint>(map.toArrayList()));
 		waypointPainter.setRenderer(new SizedMapPointRenderer());
+		
+		
 
 		defaultPainters.add(waypointPainter);
 
@@ -167,6 +172,18 @@ public class MapView extends JXMapViewer {
 			}
 		}
 		setAddressLocation(p);
+		
+		if (pinPainter != null) {
+			compPainter.removePainter(pinPainter);
+		}
+		
+		pinPainter = new WaypointPainter<Waypoint>();
+		pinPainter.setRenderer(new PinMapPointRenderer());
+		Set<Waypoint> centerPoints = new HashSet<Waypoint>();
+		centerPoints.add(new DefaultWaypoint(p));
+		pinPainter.setWaypoints(centerPoints);
+		compPainter.addPainter(pinPainter);
+		
 		if (map.getRoutes().isEmpty()) {
 			setZoom(6);
 			return;

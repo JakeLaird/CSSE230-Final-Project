@@ -3,8 +3,6 @@ package rhnavigator.GUI;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -21,6 +19,7 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.json.Input;
 import org.jxmapviewer.viewer.GeoPosition;
 
+import rhnavigator.CurrentLocation;
 import rhnavigator.MapLandmark;
 import rhnavigator.MapPoint;
 import rhnavigator.map.Map;
@@ -50,14 +49,8 @@ public class MapGUI {
 	final int HOME_HEIGHT = HOME_WIDTH;
 	private Map map;
 
-	public MapGUI() {
-		try {
-			System.out.println(Inet4Address.getLocalHost());
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		GridLayout homeLayout = new GridLayout(2, 2);
+	public MapGUI(){
+		GridLayout homeLayout = new GridLayout(2,2);
 		frame = new JFrame();
 		homeScreen = new JPanel();
 		homeScreen.setLayout(homeLayout);
@@ -170,62 +163,61 @@ public class MapGUI {
 		buttonPanel.add(routeChoice);
 		buttonPanel.add(route);
 	}
-
-	private void attractionsPanel() {
-		if (currentLocation == null) {
-			currentLocation = (MapPoint) JOptionPane.showInputDialog(frame,
-					"Please input your current location", "Error",
-					JOptionPane.QUESTION_MESSAGE, null,
-					pointList.toArray(new MapPoint[pointList.size()]),
-					pointList.get(0));
-			if (currentLocation != null)
-				attractionsPanel();
-		} else {
-			if (currentLocation == null)
-				return;
-			mapPanel();
-			view.setZoom(8);
-			view.setAddressLocation(new GeoPosition(currentLocation.latitude,
-					currentLocation.longitude));
-			JLabel attractionsLabel = new JLabel("Nearby Attractions:");
-			List<MapLandmark> attractionList = map.getNearest(currentLocation,
-					25);
-			nearbyAttractions = new JComboBox<MapPoint>(
-					attractionList.toArray(new MapPoint[attractionList.size()]));
-
-			final JButton nearAttractionButton = new JButton(
-					"Go to Attraction!");
-			ActionListener inputListener = new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					MapPoint point = (MapPoint) nearbyAttractions
-							.getSelectedItem();
-					view.setAddressLocation(new GeoPosition(point.latitude,
-							point.longitude));
-					view.setZoom(4);
-					// do stuff
-				}
-			};
-			nearAttractionButton.addActionListener(inputListener);
-
-			buttonPanel.add(attractionsLabel);
-			buttonPanel.add(nearbyAttractions);
-			buttonPanel.add(nearAttractionButton);
+	
+	private void attractionsPanel(){
+		try {
+			currentLocation = CurrentLocation.getMapPoint(map);
+		} catch (Exception e) {
+			System.err.println("Unable to get current location.");			
 		}
+		
+		if(currentLocation == null){
+			currentLocation = (MapPoint) JOptionPane.showInputDialog(frame, 
+			        "Please input your current location",
+			        "Error",
+			        JOptionPane.QUESTION_MESSAGE, 
+			        null, 
+			      pointList.toArray(new MapPoint[pointList.size()]), 
+			        pointList.get(0));
+			if(currentLocation!=null)attractionsPanel();
 
+		} else {
+		if(currentLocation == null) return;	
+		mapPanel();
+		view.setZoom(8);
+		view.setAddressLocation(new GeoPosition(currentLocation.latitude,currentLocation.longitude));
+		JLabel attractionsLabel = new JLabel("Nearby Attractions:");
+		List<MapLandmark> attractionList = map.getNearest(currentLocation, 25);
+		nearbyAttractions = new JComboBox<MapPoint>(attractionList.toArray(new MapPoint[attractionList.size()]));
+		
+		final JButton nearAttractionButton = new JButton("Go to Attraction!");
+		ActionListener inputListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				MapPoint point = (MapPoint)nearbyAttractions.getSelectedItem();
+				view.setAddressLocation(new GeoPosition(point.latitude,point.longitude));
+				view.setZoom(4);
+				// do stuff
+			}
+		};
+		nearAttractionButton.addActionListener(inputListener);
+	
+		buttonPanel.add(attractionsLabel);
+		buttonPanel.add(nearbyAttractions);
+		buttonPanel.add(nearAttractionButton);
+		}
 	}
-
+	
 	private void findOnMap(MapPoint location) {
-		// System.out.println(location);
-		// view.setAddressLocation(new
-		// GeoPosition(location.latitude,location.longitude));
-		// view.setZoom(6);
 		view.fitScreenToRouteAndPoint(location.getPosition());
-		// Find a location on the map here
 	}
-
-	private void instantiateButtons() {
-
+	
+	private void instantiateButtons(){
 		search = new JButton("Search");
+//		search.setLayout(new GridLayout(1,1));
+//		search.setIcon(new ImageIcon("/rhnavigator.GUI/searchIcon.png"));
+//		search.repaint();
+//		search.setOpaque(false);
+//		search.setIcon(icon);
 		ActionListener searchListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mapPanel();
