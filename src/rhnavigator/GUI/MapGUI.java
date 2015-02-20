@@ -3,6 +3,8 @@ package rhnavigator.GUI;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -28,7 +30,7 @@ public class MapGUI {
 	static JFrame frame;
 	static JSplitPane splitPane;
 	static JPanel buttonPanel,mapPanel,homeScreen, settingsPanel;
-	static JButton search,attractions, goHome, settings,homeButton,route, findCityButton;
+	static JButton search,attractions, tripPlanner, settings,homeButton,route, findCityButton;
 	static JComboBox<MapPoint> searchLocation,startLocation,endLocation, nearbyAttractions;
 	static JComboBox<String> routeChoice;
 //	static JCheckBox checkBox;
@@ -46,6 +48,12 @@ public class MapGUI {
 	private Map map;
 	
 	public MapGUI(){
+		try {
+			System.out.println(Inet4Address.getLocalHost());
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		GridLayout homeLayout = new GridLayout(2,2);
 		frame = new JFrame();
 		homeScreen = new JPanel();
@@ -56,7 +64,7 @@ public class MapGUI {
 		
 		homeScreen.add(search);
 		homeScreen.add(attractions);
-		homeScreen.add(goHome);
+		homeScreen.add(tripPlanner);
 		homeScreen.add(settings);
 		
 		frame.setSize(HOME_WIDTH,HOME_HEIGHT);
@@ -217,14 +225,14 @@ public class MapGUI {
 		};
 		attractions.addActionListener(attractionListener);
 		
-		goHome = new JButton("Go Home");
+		tripPlanner = new JButton("Trip Planner");
 		ActionListener homeListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
 				mapPanel();
 				// Do stuff for finding route home function
 			}
 		};
-		goHome.addActionListener(homeListener);
+		tripPlanner.addActionListener(homeListener);
 		
 		settings = new JButton("Settings");
 		ActionListener settingsListener = new ActionListener() {
@@ -236,7 +244,7 @@ public class MapGUI {
 		
 		settings.addActionListener(settingsListener);
 		
-		homeButton = new JButton("Home");
+		homeButton = new JButton("Menu");
 		ActionListener mainMenuListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
 				if(settingsPanel!=null)settingsPanel.setVisible(false);
