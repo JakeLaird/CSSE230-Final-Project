@@ -300,10 +300,13 @@ public class MapGUI {
 		startLocation.setEditable(true);
 		AutoCompleteDecorator.decorate(startLocation);
 
+
 		JLabel label1 = new JLabel("Select a city");
 		JLabel label2 = new JLabel("Miles:");
 
-		JSlider slider = new JSlider(JSlider.HORIZONTAL, 50, 200, 140);
+		final JSlider slider = new JSlider(JSlider.HORIZONTAL, 50, 200, 140);
+
+
 		slider.setMajorTickSpacing(10);
 		slider.setPaintTicks(true);
 		slider.setPaintLabels(true);
