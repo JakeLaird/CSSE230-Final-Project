@@ -187,10 +187,11 @@ public class MapGUI {
 	}
 	
 	
-	private void findOnMap(MapPoint location){
+	private void findOnMap(MapPoint location) {
 //		System.out.println(location);
-		view.setAddressLocation(new GeoPosition(location.latitude,location.longitude));
-		view.setZoom(6);
+//		view.setAddressLocation(new GeoPosition(location.latitude,location.longitude));
+//		view.setZoom(6);
+		view.fitScreenToRouteAndPoint(location.getPosition());
 		//Find a location on the map here
 	}
 	
