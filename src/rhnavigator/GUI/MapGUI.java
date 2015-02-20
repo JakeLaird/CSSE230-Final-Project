@@ -19,6 +19,7 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.json.Input;
 import org.jxmapviewer.viewer.GeoPosition;
 
+import rhnavigator.MapLandmark;
 import rhnavigator.MapPoint;
 import rhnavigator.map.Map;
 import rhnavigator.map.MapView;
@@ -73,7 +74,6 @@ public class MapGUI {
 	}
 	
 	private void mainMenu(){
-//		splitPane.setVisible(false);
 		homeScreen.setVisible(true);
 		frame.setSize(HOME_WIDTH,HOME_HEIGHT);
 		GridLayout buttonLayout = new GridLayout(10,1);
@@ -131,7 +131,6 @@ public class MapGUI {
 		};
 		route.addActionListener(routeListener);
 		
-//		JButton inputButton = new JButton()
 		buttonPanel.add(label1);
 		buttonPanel.add(searchLocation);
 		buttonPanel.add(findCityButton);
@@ -156,10 +155,13 @@ public class MapGUI {
 			if(currentLocation!=null)attractionsPanel();
 		}
 		else {
-		if(currentLocation == null) mainMenu();
+		if(currentLocation == null) return;	
 		mapPanel();
+		view.setZoom(8);
+		view.setAddressLocation(new GeoPosition(currentLocation.latitude,currentLocation.longitude));
 		JLabel attractionsLabel = new JLabel("Nearby Attractions:");
-		JComboBox nearAttractions = new JComboBox();
+		List<MapLandmark> attractionList = map.getNearest(currentLocation, 10);
+		JComboBox nearAttractions = new JComboBox(attractionList.toArray(new MapPoint[attractionList.size()]));
 		
 		final JButton inputButton = new JButton("Search!");
 		ActionListener inputListener = new ActionListener() {
