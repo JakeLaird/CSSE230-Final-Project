@@ -215,6 +215,22 @@ public class Map {
 		double[] key = new double[] { latitude, longitude };
 		return (MapPoint) kdMapPoints.nearest(key);
 	}
+	
+	public List<MapLandmark> getNearest(MapPoint p, int number) {
+		double[] key = new double[] { p.latitude, p.longitude };
+		
+		Object[] nearest = kdMapPoints.nearest(key, number*2);
+		List<MapLandmark> nearestLandmarks = new ArrayList<MapLandmark>();
+		for (Object o : nearest) {
+			if (o instanceof MapLandmark) {
+				nearestLandmarks.add((MapLandmark) o);
+			}
+			if (nearestLandmarks.size() >= number) {
+				break;
+			}
+		}
+		return nearestLandmarks;
+	}
 
 	public ArrayList<MapPoint> toArrayList() {
 		return new ArrayList<MapPoint>(mapPoints.values());

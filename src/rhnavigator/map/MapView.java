@@ -60,9 +60,6 @@ public class MapView extends JXMapViewer {
 		// Paints lines to show all connectections between neighbors
 		//defaultPainters.addAll(getNeighborPainters());
 		
-		// Create a waypoint painter that takes all the waypoints
-		
-
 		map.clearRoutes();
 		// By default, draw all places as waypoints.
 		WaypointPainter<MapPoint> waypointPainter = new WaypointPainter<MapPoint>();
@@ -111,7 +108,7 @@ public class MapView extends JXMapViewer {
 					((AbstractPainter<?>)p).setVisible(false);
 				}
 			}
-		} else {		
+		} else {
 			for (Painter<JXMapViewer> p : routePainters) {
 				compPainter.removePainter(p);
 			}
@@ -157,6 +154,11 @@ public class MapView extends JXMapViewer {
 			}
 		}
 		this.zoomToBestFit(points, 0.8);
+	}
+	
+	public void fitScreenToRouteAndPoint(GeoPosition p) {
+		
+//		fitScreenToRoute()
 	}
 
 	public void paintComponent(Graphics g) {
