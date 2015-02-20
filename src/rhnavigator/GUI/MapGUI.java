@@ -66,6 +66,7 @@ public class MapGUI {
 		frame.setSize(HOME_WIDTH,HOME_HEIGHT);
 		frame.setTitle("RHNavigators!");
 		frame.setVisible(true);
+		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 	}
@@ -200,8 +201,9 @@ public class MapGUI {
 	}
 	
 	private void instantiateButtons(){
-		search = new JButton("Search");
-		search.setIcon(new ImageIcon(MapGUI.class.getResource("/images/searchIcon.png")));
+		search = new JButton();
+		ImageIcon searchIcon = new ImageIcon(MapGUI.class.getResource("/images/searchIcon.png"));
+		search.setIcon(searchIcon);
 		ActionListener searchListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
 				mapPanel();
@@ -221,7 +223,10 @@ public class MapGUI {
 		};
 		attractions.addActionListener(attractionListener);
 		
-		tripPlanner = new JButton("Trip Planner");
+		
+		tripPlanner = new JButton();
+		ImageIcon tripIcon = new ImageIcon(MapGUI.class.getResource("/images/car.png"));
+		tripPlanner.setIcon(tripIcon);
 		ActionListener homeListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e){
 				mapPanel();
