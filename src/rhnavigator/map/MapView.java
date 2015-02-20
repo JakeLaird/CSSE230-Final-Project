@@ -2,6 +2,8 @@ package rhnavigator.map;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -157,8 +159,54 @@ public class MapView extends JXMapViewer {
 	}
 	
 	public void fitScreenToRouteAndPoint(GeoPosition p) {
+		Set<GeoPosition> points = new HashSet<GeoPosition>();
+		points.add(p);
+		for (List<MapPoint> route : map.getRoutes()) {
+			for (MapPoint point : route) {
+				points.add(point.getPosition());
+			}
+		}
+		setAddressLocation(p);
+		if (map.getRoutes().isEmpty()) {
+			setZoom(6);
+			return;
+		}
 		
-//		fitScreenToRoute()
+		setZoom(1);
+		int zoom = getZoom();
+		Rectangle2D rect = generateBoundingRect(points, zoom);
+		// Rectangle2D viewport = map.getViewportBounds();
+		int count = 0;
+		while (!getViewportBounds().contains(rect)) {
+			count++;
+			if (count > 30) {
+				break;
+			}
+			if (getViewportBounds().contains(rect)) {
+				System.err.println("did it finally");
+				break;
+			}
+			zoom += 1;
+			
+			if (zoom > 20)
+			{
+				System.err.println("zoom failed");
+				break;
+			}
+			setZoom(zoom);
+			rect = generateBoundingRect(points, zoom);
+		}
+	}
+	
+	private Rectangle2D generateBoundingRect(final Set<GeoPosition> positions, int zoom)
+	{
+		Point2D point1 = getTileFactory().geoToPixel(positions.iterator().next(), zoom);
+		Rectangle2D rect = new Rectangle2D.Double(point1.getX(), point1.getY(), 0, 0);
+		for (GeoPosition pos : positions) {
+			Point2D point = getTileFactory().geoToPixel(pos, zoom);
+			rect.add(point);
+		}
+		return rect;
 	}
 
 	public void paintComponent(Graphics g) {
