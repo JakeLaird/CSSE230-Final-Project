@@ -14,7 +14,7 @@ import rhnavigator.map.Map;
 public class CurrentLocation {
 	//source:http://stackoverflow.com/questions/5015844/parsing-json-object-in-java
 	/**
-	 * You could gey ip, country_code,country_name,region_code,region_name,city,zip_code,time_zone,latitude,longitude,metro_code
+	 * You could get ip, country_code,country_name,region_code,region_name,city,zip_code,time_zone,latitude,longitude,metro_code
 	 * @param requirement
 	 * @return String
 	 * @throws Exception
