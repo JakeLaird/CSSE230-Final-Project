@@ -365,7 +365,8 @@ public class MapGUI {
 					};
 					trip_plan.addActionListener(sec_routeListener);
 					buttonPanel.add(trip_plan);
-					buttonPanel.repaint();
+					buttonPanel.setVisible(false);
+					buttonPanel.setVisible(true);
 					ischanged = true;
 				}
 
