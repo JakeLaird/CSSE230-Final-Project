@@ -295,7 +295,7 @@ public class MapGUI {
 		JLabel label1= new JLabel("Select a city");
 		JLabel label2=new JLabel("Miles:");
 		
-		JSlider slider = new JSlider(JSlider.HORIZONTAL,
+		final JSlider slider = new JSlider(JSlider.HORIZONTAL,
                 30, 100, 50);
 		slider.setMajorTickSpacing(10);
 		slider.setMinorTickSpacing(1);
