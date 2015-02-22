@@ -267,7 +267,7 @@ public class MapGUI {
 		} catch (Exception e) {
 			System.err.println("Unable to get current location.");
 		}
-
+		
 		if (currentLocation == null) {
 			currentLocation = (MapPoint) JOptionPane.showInputDialog(frame,
 					"Please input your current location", "Error",
@@ -280,6 +280,7 @@ public class MapGUI {
 		} else {
 			if (currentLocation == null)
 				return;
+			
 			mapPanel();
 			view.setZoom(8);
 			view.setAddressLocation(new GeoPosition(currentLocation.latitude,
@@ -328,7 +329,9 @@ public class MapGUI {
 		};
 		search.addActionListener(searchListener);
 
-		attractions = new JButton("Nearby Attractions");
+		attractions = new JButton();
+		ImageIcon attractionsIcon = new ImageIcon(MapGUI.class.getResource("/images/entertainment.png"));
+		attractions.setIcon(attractionsIcon);
 		ActionListener attractionListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// mapPanel();
@@ -342,7 +345,6 @@ public class MapGUI {
 		ImageIcon tripIcon = new ImageIcon(MapGUI.class.getResource("/images/car.png"));
 		tripPlanner.setIcon(tripIcon);
 
-		tripPlanner = new JButton("Trip Planner");
 
 		
 		ActionListener homeListener = new ActionListener() {
@@ -354,7 +356,9 @@ public class MapGUI {
 		};
 		tripPlanner.addActionListener(homeListener);
 
-		settings = new JButton("Settings");
+		settings = new JButton();
+		ImageIcon settingsIcon = new ImageIcon(MapGUI.class.getResource("/images/settings.png"));
+		settings.setIcon(settingsIcon);
 		ActionListener settingsListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				settingsPanel();
@@ -463,6 +467,7 @@ public class MapGUI {
 					buttonPanel.add(trip_plan);
 					buttonPanel.setVisible(false);
 					buttonPanel.setVisible(true);
+					
 					ischanged = true;
 				}
 
